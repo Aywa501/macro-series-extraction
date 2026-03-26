@@ -1,0 +1,7 @@
+model,metric,regression_type,beta,se_nw,t_stat,p_value,n,n_fe_levels,r2,r2_adj
+bert_L9,apd,treatment_decade_FE_primary,-0.000612,0.000587,-1.041584,0.297605,41,9,0.556332,0.427525
+bert_L9,drift_cosine,treatment_decade_FE_robustness_PRT,-0.001499,0.000479,-3.129463,0.001751,41,9,0.217668,-0.009461
+bge,apd,treatment_decade_FE_primary,-0.000616,0.000856,-0.720242,0.471376,41,9,0.198601,-0.034064
+bge,drift_cosine,treatment_decade_FE_robustness_PRT,-0.005190,0.001142,-4.546471,0.000005,41,9,0.292409,0.086980
+macberth_L9,apd,treatment_decade_FE_primary,-0.000191,0.000196,-0.977434,0.328354,41,9,0.408392,0.236635
+macberth_L9,drift_cosine,treatment_decade_FE_robustness_PRT,-0.000483,0.000108,-4.460518,0.000008,41,9,0.329091,0.134311

@@ -1,0 +1,7 @@
+model,regression_type,y_col,beta_obs,p_permutation,beta_null_mean,beta_null_p95,n_shuffles
+bert_L9,permutation_apd,apd,-0.000612,0.445000,-0.000041,0.001546,200
+bert_L9,permutation_drift_cosine,drift_cosine,-0.001499,0.110000,0.000059,0.001905,200
+bge,permutation_apd,apd,-0.000616,0.620000,-0.000040,0.002476,200
+bge,permutation_drift_cosine,drift_cosine,-0.005190,0.015000,0.000203,0.004232,200
+macberth_L9,permutation_apd,apd,-0.000191,0.430000,-0.000015,0.000456,200
+macberth_L9,permutation_drift_cosine,drift_cosine,-0.000483,0.025000,0.000009,0.000414,200

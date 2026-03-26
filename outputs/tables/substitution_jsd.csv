@@ -1,0 +1,135 @@
+idiom,denomination,group,decade_start,decade_end,jsd,n_start,n_end
+uttermost farthing,['farthing'],treatment,1820,1830,0.126951,3,10
+uttermost farthing,['farthing'],treatment,1860,1870,0.318233,6,5
+uttermost farthing,['farthing'],treatment,1870,1880,0.294370,5,18
+uttermost farthing,['farthing'],treatment,1880,1890,0.256628,18,13
+uttermost farthing,['farthing'],treatment,1890,1900,0.225508,13,14
+uttermost farthing,['farthing'],treatment,1900,1910,0.282812,14,17
+uttermost farthing,['farthing'],treatment,1910,1920,0.295787,17,10
+uttermost farthing,['farthing'],treatment,1920,1930,0.243276,10,14
+uttermost farthing,['farthing'],treatment,1930,1940,0.218629,14,6
+uttermost farthing,['farthing'],treatment,1940,1950,0.406330,6,4
+a bitter pill to swallow,['placebo'],placebo,1940,1960,0.044692,4,4
+a bitter pill to swallow,['placebo'],placebo,1960,1980,0.022703,4,7
+a bitter pill to swallow,['placebo'],placebo,1980,1990,0.136025,7,7
+a bitter pill to swallow,['placebo'],placebo,1990,2000,0.143278,7,4
+not worth a farthing,['farthing'],treatment,1820,1840,0.261328,3,7
+not worth a farthing,['farthing'],treatment,1840,1850,0.324353,7,5
+not worth a farthing,['farthing'],treatment,1850,1860,0.364622,5,4
+not worth a farthing,['farthing'],treatment,1860,1880,0.235240,4,4
+pound of flesh,['pound'],treatment,1830,1840,0.343352,10,8
+pound of flesh,['pound'],treatment,1840,1850,0.298797,8,4
+pound of flesh,['pound'],treatment,1850,1860,0.275186,4,6
+pound of flesh,['pound'],treatment,1860,1870,0.298935,6,7
+pound of flesh,['pound'],treatment,1870,1880,0.372080,7,61
+pound of flesh,['pound'],treatment,1880,1890,0.313607,61,17
+pound of flesh,['pound'],treatment,1890,1900,0.365625,17,23
+pound of flesh,['pound'],treatment,1900,1910,0.328594,23,28
+pound of flesh,['pound'],treatment,1910,1920,0.284117,28,44
+pound of flesh,['pound'],treatment,1920,1930,0.320230,44,60
+pound of flesh,['pound'],treatment,1930,1940,0.353362,60,27
+pound of flesh,['pound'],treatment,1940,1950,0.318239,27,37
+pound of flesh,['pound'],treatment,1950,1960,0.424815,37,51
+pound of flesh,['pound'],treatment,1960,1970,0.354070,51,56
+pound of flesh,['pound'],treatment,1970,1980,0.340433,56,39
+pound of flesh,['pound'],treatment,1980,1990,0.377064,39,36
+pound of flesh,['pound'],treatment,1990,2000,0.265410,36,17
+the last straw,['placebo'],placebo,1840,1850,0.057318,3,4
+the last straw,['placebo'],placebo,1850,1870,0.197401,4,5
+the last straw,['placebo'],placebo,1870,1880,0.388844,5,12
+the last straw,['placebo'],placebo,1880,1890,0.382688,12,10
+the last straw,['placebo'],placebo,1890,1900,0.134440,10,20
+the last straw,['placebo'],placebo,1900,1910,0.233230,20,13
+the last straw,['placebo'],placebo,1910,1920,0.263853,13,21
+the last straw,['placebo'],placebo,1920,1930,0.395999,21,89
+the last straw,['placebo'],placebo,1930,1940,0.437426,89,47
+the last straw,['placebo'],placebo,1940,1950,0.314243,47,64
+the last straw,['placebo'],placebo,1950,1960,0.187269,64,85
+the last straw,['placebo'],placebo,1960,1970,0.426455,85,117
+the last straw,['placebo'],placebo,1970,1980,0.472692,117,75
+the last straw,['placebo'],placebo,1980,1990,0.255860,75,76
+the last straw,['placebo'],placebo,1990,2000,0.314298,76,30
+lame duck,['placebo'],placebo,1890,1900,0.510019,3,10
+lame duck,['placebo'],placebo,1900,1910,0.589579,10,6
+lame duck,['placebo'],placebo,1910,1920,0.559425,6,3
+lame duck,['placebo'],placebo,1920,1930,0.601845,3,10
+lame duck,['placebo'],placebo,1930,1940,0.472503,10,6
+lame duck,['placebo'],placebo,1940,1950,0.482841,6,10
+lame duck,['placebo'],placebo,1950,1960,0.442498,10,50
+lame duck,['placebo'],placebo,1960,1970,0.487402,50,767
+lame duck,['placebo'],placebo,1970,1980,0.390830,767,158
+lame duck,['placebo'],placebo,1980,1990,0.397964,158,100
+lame duck,['placebo'],placebo,1990,2000,0.483889,100,16
+hot potato,['placebo'],placebo,1880,1900,0.318577,4,3
+hot potato,['placebo'],placebo,1900,1910,0.376848,3,6
+hot potato,['placebo'],placebo,1950,1960,0.537665,4,50
+hot potato,['placebo'],placebo,1960,1970,0.437324,50,39
+hot potato,['placebo'],placebo,1970,1980,0.381488,39,55
+hot potato,['placebo'],placebo,1980,1990,0.439845,55,37
+hot potato,['placebo'],placebo,1990,2000,0.444046,37,26
+brass farthing,['farthing'],treatment,1870,1880,0.526902,3,6
+brass farthing,['farthing'],treatment,1880,1890,0.280732,6,8
+brass farthing,['farthing'],treatment,1890,1900,0.313663,8,19
+brass farthing,['farthing'],treatment,1900,1910,0.381366,19,21
+brass farthing,['farthing'],treatment,1910,1920,0.357451,21,18
+brass farthing,['farthing'],treatment,1920,1930,0.343518,18,22
+brass farthing,['farthing'],treatment,1930,1940,0.372756,22,5
+brass farthing,['farthing'],treatment,1940,1950,0.305236,5,7
+brass farthing,['farthing'],treatment,1950,1960,0.416161,7,20
+brass farthing,['farthing'],treatment,1960,1970,0.491921,20,15
+brass farthing,['farthing'],treatment,1970,1980,0.440847,15,18
+brass farthing,['farthing'],treatment,1980,1990,0.307561,18,8
+brass farthing,['farthing'],treatment,1990,2000,0.430511,8,5
+not a penny more,['penny'],treatment,1940,1950,0.099501,7,6
+not a penny more,['penny'],treatment,1950,1960,0.256745,6,6
+not a penny more,['penny'],treatment,1960,1970,0.224974,6,16
+not a penny more,['penny'],treatment,1970,1980,0.291580,16,23
+not a penny more,['penny'],treatment,1980,1990,0.086266,23,26
+not a penny more,['penny'],treatment,1990,2000,0.089653,26,6
+a pretty penny,['penny'],treatment,1950,1960,0.311328,5,4
+a pretty penny,['penny'],treatment,1960,1970,0.180649,4,4
+a pretty penny,['penny'],treatment,1970,1980,0.434016,4,5
+a pretty penny,['penny'],treatment,1980,1990,0.354386,5,8
+a pretty penny,['penny'],treatment,1990,2000,0.178956,8,3
+turn a blind eye,['placebo'],placebo,1900,1920,0.228412,3,6
+turn a blind eye,['placebo'],placebo,1920,1930,0.116396,6,18
+turn a blind eye,['placebo'],placebo,1930,1940,0.203223,18,15
+turn a blind eye,['placebo'],placebo,1940,1950,0.262342,15,29
+turn a blind eye,['placebo'],placebo,1950,1960,0.157677,29,53
+turn a blind eye,['placebo'],placebo,1960,1970,0.291696,53,92
+turn a blind eye,['placebo'],placebo,1970,1980,0.297263,92,142
+turn a blind eye,['placebo'],placebo,1980,1990,0.361496,142,172
+turn a blind eye,['placebo'],placebo,1990,2000,0.358213,172,126
+penny packets,['penny'],treatment,1940,1950,0.249171,16,35
+penny packets,['penny'],treatment,1950,1960,0.283046,35,43
+penny packets,['penny'],treatment,1960,1970,0.307964,43,18
+penny packets,['penny'],treatment,1970,1980,0.337767,18,8
+penny packets,['penny'],treatment,1980,1990,0.273167,8,17
+penny packets,['penny'],treatment,1990,2000,0.292765,17,13
+water under the bridge,['placebo'],placebo,1960,1970,0.265118,34,88
+water under the bridge,['placebo'],placebo,1970,1980,0.306339,88,75
+water under the bridge,['placebo'],placebo,1980,1990,0.284551,75,94
+water under the bridge,['placebo'],placebo,1990,2000,0.370597,94,30
+throw a spanner in the works,['placebo'],placebo,1950,1970,0.306396,5,12
+throw a spanner in the works,['placebo'],placebo,1970,1980,0.186696,12,3
+throw a spanner in the works,['placebo'],placebo,1980,2000,0.132069,3,3
+back to square one,['placebo'],placebo,1960,1970,0.332514,75,143
+back to square one,['placebo'],placebo,1970,1980,0.303718,143,97
+back to square one,['placebo'],placebo,1980,1990,0.182522,97,87
+back to square one,['placebo'],placebo,1990,2000,0.233002,87,49
+look after the pennies,['penny'],treatment,1960,1970,0.499348,3,3
+cut corners,['placebo'],placebo,1960,1970,0.436999,7,32
+cut corners,['placebo'],placebo,1970,1980,0.414277,32,101
+cut corners,['placebo'],placebo,1980,1990,0.321132,101,114
+cut corners,['placebo'],placebo,1990,2000,0.330743,114,50
+tip of the iceberg,['placebo'],placebo,1960,1970,0.333823,52,165
+tip of the iceberg,['placebo'],placebo,1970,1980,0.280670,165,253
+tip of the iceberg,['placebo'],placebo,1980,1990,0.292534,253,181
+tip of the iceberg,['placebo'],placebo,1990,2000,0.277478,181,137
+penny-pinching,['penny'],treatment,1960,1970,0.486136,7,50
+penny-pinching,['penny'],treatment,1970,1980,0.387961,50,161
+penny-pinching,['penny'],treatment,1980,1990,0.353048,161,109
+penny-pinching,['penny'],treatment,1990,2000,0.397290,109,35
+bite the bullet,['placebo'],placebo,1970,1980,0.446377,5,40
+bite the bullet,['placebo'],placebo,1980,1990,0.348412,40,57
+bite the bullet,['placebo'],placebo,1990,2000,0.327257,57,57

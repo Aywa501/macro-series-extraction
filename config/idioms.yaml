@@ -1,0 +1,435 @@
+# ===========================================================================
+# Idiom configuration for Hansard monetary-idiom extraction pipeline
+#
+# Provenance
+# ----------
+# - "LIDIOMS"        : mechanically extracted from LIDIOMS english.ttl
+#                      (http://lid.aksw.org), filtered to entries whose
+#                      rdfs:label contains a UK monetary denomination.
+# - "researcher"     : added by the research team from standard reference
+#                      works (OED, Brewer's Dictionary of Phrase & Fable,
+#                      Partridge). NOT in LIDIOMS.  Listed explicitly so a
+#                      reviewer can distinguish mechanical from manual
+#                      selection.
+# - "LIDIOMS-placebo": non-monetary idioms drawn from LIDIOMS for
+#                      falsification / placebo tests.
+#
+# Classification
+# --------------
+# group: treatment   — denomination value is semantically load-bearing;
+#                      the coin's cheapness/dearness IS the idiom's point.
+# group: excluded    — denomination word is present but value is NOT the
+#                      semantic mechanism (e.g. "guinea pig", "bad penny").
+#                      Kept here for transparency; include: false.
+# group: placebo     — no monetary denomination; null-signal control set.
+#
+# Each entry is pre-registered before running on the full corpus.
+# ===========================================================================
+
+
+# ===========================
+#  TREATMENT — penny idioms
+# ===========================
+idioms:
+
+  # --- LIDIOMS matches ---
+
+  - phrase: "penny for your thoughts"
+    denomination: [penny]
+    group: treatment
+    source: LIDIOMS
+    notes: >
+      Offering a trivially small sum for someone's opinion.
+      Denomination value is directly load-bearing: the penny marks
+      the offer as nominal. One of the most recognisable penny idioms.
+    include: true
+
+  - phrase: "not have two pennies to rub together"
+    denomination: [penny]
+    group: treatment
+    source: LIDIOMS
+    notes: >
+      Extreme poverty — not possessing even two of the smallest coins.
+      Value-laden: the penny's smallness intensifies the poverty claim.
+      LIDIOMS canonical form is "have two pennies to rub together";
+      expanded here to capture the negated form that dominates in Hansard.
+    include: true
+
+  - phrase: "penny-pinching"
+    denomination: [penny]
+    group: treatment
+    source: LIDIOMS
+    notes: >
+      Excessive frugality or miserliness — saving at the level of
+      individual pennies. Value-laden: the penny marks the scale of
+      the parsimony. LIDIOMS form is "penny-pincher"; gerund form
+      used here as it is far more common in parliamentary speech.
+    include: true
+
+  # --- Researcher-supplemented penny idioms ---
+
+  - phrase: "not worth a penny"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Something of negligible value. Directly value-laden: the penny
+      is the unit of (in)significance.
+    include: true
+
+  - phrase: "a pretty penny"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Ironic/hyperbolic — means a surprisingly large sum. Value-laden:
+      the humour depends on the penny normally being trivial.
+    include: true
+
+  - phrase: "penny packets"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Small, inadequate, piecemeal amounts. Common in military and
+      budget debates. Value-laden: the penny marks the insufficiency.
+    include: true
+
+  - phrase: "pennies in the pound"
+    denomination: [penny, pound]
+    group: treatment
+    source: researcher
+    notes: >
+      Rate metaphor — recovering only a fraction of value. Value-laden
+      when used as a general adequacy metaphor. Context-dependent: can
+      be literal when discussing actual dividend/tax rates.
+    include: true
+
+  - phrase: "ten a penny"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Something extremely common and of little value (UK equivalent of
+      "a dime a dozen"). Value-laden: the penny anchors the cheapness.
+    include: true
+
+  - phrase: "penny dreadful"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Originally a cheap sensational publication costing one penny.
+      Extended to mean anything cheap and lurid. Value-laden: the
+      penny marks the low cost and by extension low quality.
+    include: true
+
+  - phrase: "turn an honest penny"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      To earn money through legitimate work, especially modest amounts.
+      Value-laden: the penny marks the modest scale of the earnings.
+    include: true
+
+  - phrase: "not a penny more"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      Refusing further payment or concession. Can be literal in price
+      negotiation or idiomatic as emphatic refusal. Context-dependent.
+    include: true
+
+  - phrase: "penny wise pound foolish"
+    denomination: [penny, pound]
+    group: treatment
+    source: researcher
+    notes: >
+      False economy — saving on small things while wasting on large.
+      Value-laden: depends on the penny/pound VALUE ratio.
+    include: true
+
+  - phrase: "in for a penny in for a pound"
+    denomination: [penny, pound]
+    group: treatment
+    source: researcher
+    notes: >
+      Committing fully once started. Value-laden: the escalation from
+      penny to pound relies on their value difference.
+    include: true
+
+  - phrase: "look after the pennies"
+    denomination: [penny]
+    group: treatment
+    source: researcher
+    notes: >
+      From "look after the pennies and the pounds will look after
+      themselves." Proverb about thrift. Value-laden: the penny's
+      smallness is the point. Truncated to capture partial quotations
+      common in parliamentary speech.
+    include: true
+
+
+  # ===========================
+  #  TREATMENT — shilling idioms
+  # ===========================
+
+  - phrase: "not the full shilling"
+    denomination: [shilling]
+    group: treatment
+    source: researcher
+    notes: >
+      Someone not fully competent or intelligent — "not all there."
+      Value-laden: the shilling as a unit of completeness/adequacy.
+      Common in British and Irish parliamentary usage.
+    include: true
+
+  - phrase: "shilling a dozen"
+    denomination: [shilling]
+    group: treatment
+    source: researcher
+    notes: >
+      Variant of "a dime a dozen" — very common and of little value.
+      Value-laden: the shilling marks cheapness.
+    include: true
+
+
+  # ===========================
+  #  TREATMENT — farthing idioms
+  # ===========================
+
+  - phrase: "not worth a farthing"
+    denomination: [farthing]
+    group: treatment
+    source: researcher
+    notes: >
+      Of negligible or no value. Value-laden: the farthing (quarter
+      penny) is the smallest possible unit of insignificance.
+    include: true
+
+  - phrase: "brass farthing"
+    denomination: [farthing]
+    group: treatment
+    source: researcher
+    notes: >
+      Emphatic form — "not a brass farthing" / "not worth a brass
+      farthing." Value-laden: brass (base metal) + farthing (smallest
+      coin) = maximally worthless. Common in parliamentary record.
+    include: true
+
+  - phrase: "uttermost farthing"
+    denomination: [farthing]
+    group: treatment
+    source: researcher
+    notes: >
+      Biblical origin (Matthew 5:26). Means paying every last fraction
+      of a debt. Value-laden: the farthing marks the smallest possible
+      increment of obligation.
+    include: true
+
+
+  # ===========================
+  #  TREATMENT — pound idioms
+  # ===========================
+
+  - phrase: "pound of flesh"
+    denomination: [pound]
+    group: treatment
+    source: researcher
+    notes: >
+      Demanding exact repayment regardless of consequences (from
+      Shakespeare's Merchant of Venice). NOTE: "pound" here refers
+      to a unit of weight, not currency. However, the phrase is used
+      idiomatically in debt/obligation contexts where the monetary
+      resonance is active. Context-dependent — LLM disambiguation
+      should flag pure weight-measure uses.
+    include: true
+
+  - phrase: "penny wise pound foolish"
+    denomination: [penny, pound]
+    group: treatment
+    source: researcher
+    notes: "Cross-listed under penny. See penny entry for details."
+    include: false
+
+  - phrase: "in for a penny in for a pound"
+    denomination: [penny, pound]
+    group: treatment
+    source: researcher
+    notes: "Cross-listed under penny. See penny entry for details."
+    include: false
+
+
+  # ===========================
+  #  TREATMENT — guinea idioms
+  # ===========================
+
+  # No value-laden guinea idioms found in LIDIOMS or standard references.
+  # "guinea pig" is the only guinea idiom and is value-inert (see below).
+  # Guinea is excluded as a treatment denomination.
+
+
+  # ===========================
+  #  TREATMENT — crown idioms
+  # ===========================
+
+  # No value-laden crown idioms found in LIDIOMS or standard references.
+  # "crown" in parliamentary text almost always refers to the monarchy,
+  # not the coin. Excluded as a treatment denomination to avoid
+  # systematic disambiguation failure.
+
+
+  # ===========================
+  #  EXCLUDED — value-inert
+  # ===========================
+  # Denomination word present but the coin's value is NOT the semantic
+  # mechanism. Kept for transparency and audit trail.
+
+  - phrase: "guinea pig"
+    denomination: [guinea]
+    group: excluded
+    source: researcher
+    notes: >
+      Test subject. The "guinea" is etymologically linked to the coin
+      but the meaning has zero relationship to purchasing power.
+      Inflation cannot cause this phrase to connote more or less
+      triviality. Also high false-positive rate from geographic
+      "Guinea" references. EXCLUDED from treatment.
+    include: false
+
+  - phrase: "bad penny"
+    denomination: [penny]
+    group: excluded
+    source: researcher
+    notes: >
+      From "turn up like a bad penny" — something unwanted that keeps
+      reappearing. The mechanism is RECURRENCE of a counterfeit coin,
+      not the penny's VALUE. No reason context should shift on a
+      triviality axis with inflation. EXCLUDED from treatment.
+    include: false
+
+  - phrase: "spend a penny"
+    denomination: [penny]
+    group: excluded
+    source: researcher
+    notes: >
+      Euphemism for using a toilet (historically coin-operated stalls).
+      Meaning is completely detached from the penny's purchasing power.
+      EXCLUDED from treatment.
+    include: false
+
+  - phrase: "take the king's shilling"
+    denomination: [shilling]
+    group: excluded
+    source: researcher
+    notes: >
+      Accepting military service or obligation. The shilling is a
+      historical artifact in the phrase, not a value marker. Will not
+      drift with the shilling's real value. EXCLUDED from treatment.
+    include: false
+
+  - phrase: "the penny dropped"
+    denomination: [penny]
+    group: excluded
+    source: LIDIOMS
+    notes: >
+      Sudden realisation — from coin-operated machines. The penny is
+      mechanistic (a trigger) not a value marker. LIDIOMS definition
+      is "a person very stupid" which is inaccurate; actual meaning is
+      belated understanding. EXCLUDED from treatment.
+    include: false
+
+
+  # ===========================
+  #  PLACEBO — non-monetary idioms
+  # ===========================
+  # From LIDIOMS. Selected for: (a) likely to appear in parliamentary
+  # debate, (b) no monetary denomination reference, (c) similar
+  # register and vintage to treatment idioms. These should show NO
+  # systematic relationship with any denomination's real value.
+
+  - phrase: "tip of the iceberg"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "A small visible part of a much larger problem."
+    include: true
+
+  - phrase: "throw a spanner in the works"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "To sabotage or disrupt a plan. British idiom, common in Hansard."
+    include: true
+
+  - phrase: "the last straw"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "The final problem in a series that makes the situation unbearable."
+    include: true
+
+  - phrase: "turn a blind eye"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "To deliberately ignore something. Nelson attribution makes it common in UK parliamentary rhetoric."
+    include: true
+
+  - phrase: "hot potato"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "A controversial or sensitive issue. Very common in parliamentary debate."
+    include: true
+
+  - phrase: "back to square one"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "Starting over from the beginning."
+    include: true
+
+  - phrase: "bite the bullet"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "To endure a painful situation with courage. Common in policy debate."
+    include: true
+
+  - phrase: "lame duck"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "An ineffective person or official. Originally British stock-exchange slang. Common in parliamentary usage."
+    include: true
+
+  - phrase: "a bitter pill to swallow"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "An unpleasant fact or situation that must be accepted."
+    include: true
+
+  - phrase: "cut corners"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "To do something in the cheapest or easiest way, sacrificing quality. NOTE: thematically adjacent to economy/cost but contains no denomination word."
+    include: true
+
+  - phrase: "water under the bridge"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "Past events that are no longer relevant."
+    include: true
+
+  - phrase: "beat around the bush"
+    denomination: []
+    group: placebo
+    source: LIDIOMS-placebo
+    notes: "To avoid getting to the point. Common in parliamentary criticism."
+    include: true
