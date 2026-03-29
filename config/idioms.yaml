@@ -8,7 +8,7 @@
 #                      rdfs:label contains a UK monetary denomination.
 # - "researcher"     : added by the research team from standard reference
 #                      works (OED, Brewer's Dictionary of Phrase & Fable,
-#                      Partridge). NOT in LIDIOMS.  Listed explicitly so a
+#                      Partridge). NOT in LIDIOMS. Listed explicitly so a
 #                      reviewer can distinguish mechanical from manual
 #                      selection.
 # - "LIDIOMS-placebo": non-monetary idioms drawn from LIDIOMS for
@@ -22,6 +22,26 @@
 #                      semantic mechanism (e.g. "guinea pig", "bad penny").
 #                      Kept here for transparency; include: false.
 # group: placebo     — no monetary denomination; null-signal control set.
+#
+# Paraphrase poles
+# ----------------
+# Each treatment idiom has two poles: trivial_pole and significant_pole.
+# These are short phrases expressing the idiom's core meaning at different
+# ends of a weight/significance dimension. The score_paraphrase metric is:
+#
+#   score = sim(context, trivial_pole) - sim(context, significant_pole)
+#
+# Poles are idiom-specific because each idiom occupies a distinct semantic
+# neighbourhood. The only dimension that varies between poles is the
+# intensity word; all other semantic content is held constant.
+#
+# pole_def_source: the dictionary entry used to derive the core meaning.
+# Sources used:
+#   Cambridge Advanced Learner's Dictionary & Thesaurus (cambridge.org)
+#   Collins English Dictionary (collinsdictionary.com)
+#   Dictionary.com (dictionary.com)
+#   Merriam-Webster (merriam-webster.com)
+#   Green's Dictionary of Slang (greensdictofslang.com)
 #
 # Each entry is pre-registered before running on the full corpus.
 # ===========================================================================
@@ -43,6 +63,10 @@ idioms:
       Denomination value is directly load-bearing: the penny marks
       the offer as nominal. One of the most recognisable penny idioms.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary:
+      'said when you want to know what another person is thinking'"
+    trivial_pole: "a thought of negligible consequence"
+    significant_pole: "a thought of considerable consequence"
 
   - phrase: "not have two pennies to rub together"
     denomination: [penny]
@@ -54,6 +78,10 @@ idioms:
       LIDIOMS canonical form is "have two pennies to rub together";
       expanded here to capture the negated form that dominates in Hansard.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to be very
+      poor'; Collins: 'to have very little money'"
+    trivial_pole: "possessing a negligible sum of money"
+    significant_pole: "possessing a substantial sum of money"
 
   - phrase: "penny-pinching"
     denomination: [penny]
@@ -65,6 +93,10 @@ idioms:
       the parsimony. LIDIOMS form is "penny-pincher"; gerund form
       used here as it is far more common in parliamentary speech.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary:
+      'unwilling to spend money'"
+    trivial_pole: "excessive reluctance to spend a negligible amount"
+    significant_pole: "prudent reluctance to spend a substantial amount"
 
   # --- Researcher-supplemented penny idioms ---
 
@@ -76,6 +108,11 @@ idioms:
       Something of negligible value. Directly value-laden: the penny
       is the unit of (in)significance.
     include: true
+    pole_def_source: "Collins English Dictionary: 'two a penny / ten a
+      penny — not valuable or interesting because they are very common
+      and easy to find'"
+    trivial_pole: "of negligible worth"
+    significant_pole: "of considerable worth"
 
   - phrase: "a pretty penny"
     denomination: [penny]
@@ -85,6 +122,11 @@ idioms:
       Ironic/hyperbolic — means a surprisingly large sum. Value-laden:
       the humour depends on the penny normally being trivial.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'cost
+      someone a pretty penny — to be very expensive'; Dictionary.com:
+      'a considerable sum of money'"
+    trivial_pole: "a negligible sum of money"
+    significant_pole: "a considerable sum of money"
 
   - phrase: "penny packets"
     denomination: [penny]
@@ -94,6 +136,10 @@ idioms:
       Small, inadequate, piecemeal amounts. Common in military and
       budget debates. Value-laden: the penny marks the insufficiency.
     include: true
+    pole_def_source: "Collins English Dictionary penny-related entries;
+      general British parliamentary usage for piecemeal allocation"
+    trivial_pole: "a meagre and negligible allocation"
+    significant_pole: "a generous and substantial allocation"
 
   - phrase: "pennies in the pound"
     denomination: [penny, pound]
@@ -104,6 +150,10 @@ idioms:
       when used as a general adequacy metaphor. Context-dependent: can
       be literal when discussing actual dividend/tax rates.
     include: true
+    pole_def_source: "Cambridge Dictionary farthing entry (Hansard
+      examples): general British financial idiom for fractional recovery"
+    trivial_pole: "a negligible fraction of the full amount"
+    significant_pole: "a substantial fraction of the full amount"
 
   - phrase: "ten a penny"
     denomination: [penny]
@@ -113,6 +163,11 @@ idioms:
       Something extremely common and of little value (UK equivalent of
       "a dime a dozen"). Value-laden: the penny anchors the cheapness.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'be two/ten
+      a penny — to be very common'; Collins: 'not valuable or interesting
+      because they are very common and easy to find'"
+    trivial_pole: "extremely common and of negligible worth"
+    significant_pole: "rare and of considerable worth"
 
   - phrase: "penny dreadful"
     denomination: [penny]
@@ -123,6 +178,11 @@ idioms:
       Extended to mean anything cheap and lurid. Value-laden: the
       penny marks the low cost and by extension low quality.
     include: true
+    pole_def_source: "Dictionary.com: 'a cheap, sensational novel of
+      adventure, crime, or violence'; Farlex Dictionary of Idioms:
+      'a cheap paperback novel, typically characterized by melodrama'"
+    trivial_pole: "of negligible cost and negligible quality"
+    significant_pole: "of considerable cost and considerable quality"
 
   - phrase: "turn an honest penny"
     denomination: [penny]
@@ -132,6 +192,10 @@ idioms:
       To earn money through legitimate work, especially modest amounts.
       Value-laden: the penny marks the modest scale of the earnings.
     include: true
+    pole_def_source: "General British idiom; Cambridge Dictionary penny
+      entry: 'the smallest amount of money possible'"
+    trivial_pole: "to earn a negligible return through honest work"
+    significant_pole: "to earn a substantial return through honest work"
 
   - phrase: "not a penny more"
     denomination: [penny]
@@ -141,6 +205,11 @@ idioms:
       Refusing further payment or concession. Can be literal in price
       negotiation or idiomatic as emphatic refusal. Context-dependent.
     include: true
+    pole_def_source: "Cambridge Dictionary penny entry: 'the smallest
+      amount of money possible'; general emphatic refusal of further
+      concession"
+    trivial_pole: "refusing even a negligible further concession"
+    significant_pole: "refusing a substantial further concession"
 
   - phrase: "penny wise pound foolish"
     denomination: [penny, pound]
@@ -150,6 +219,12 @@ idioms:
       False economy — saving on small things while wasting on large.
       Value-laden: depends on the penny/pound VALUE ratio.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'extremely
+      careful about small amounts of money and not careful enough about
+      larger amounts'; Merriam-Webster: 'careful about small amounts of
+      money but not about large amounts'"
+    trivial_pole: "careful stewardship of a negligible sum"
+    significant_pole: "careful stewardship of a substantial sum"
 
   - phrase: "in for a penny in for a pound"
     denomination: [penny, pound]
@@ -159,6 +234,11 @@ idioms:
       Committing fully once started. Value-laden: the escalation from
       penny to pound relies on their value difference.
     include: true
+    pole_def_source: "Collins English Dictionary: 'firmly committed to a
+      particular course of action, even though it will probably cost a
+      lot of money or use a lot of resources if you continue'"
+    trivial_pole: "a negligible initial commitment"
+    significant_pole: "a total and binding commitment"
 
   - phrase: "look after the pennies"
     denomination: [penny]
@@ -170,6 +250,10 @@ idioms:
       smallness is the point. Truncated to capture partial quotations
       common in parliamentary speech.
     include: true
+    pole_def_source: "Cambridge Dictionary penny entry; general British
+      proverb about accumulation of small savings"
+    trivial_pole: "careful stewardship of negligible individual sums"
+    significant_pole: "careful stewardship of substantial individual sums"
 
 
   # ===========================
@@ -185,6 +269,10 @@ idioms:
       Value-laden: the shilling as a unit of completeness/adequacy.
       Common in British and Irish parliamentary usage.
     include: true
+    pole_def_source: "Green's Dictionary of Slang: 'not quite the full
+      shilling — not very intelligent, slightly eccentric, odd'"
+    trivial_pole: "lacking a negligible degree of full competence"
+    significant_pole: "lacking a substantial degree of full competence"
 
   - phrase: "shilling a dozen"
     denomination: [shilling]
@@ -194,6 +282,11 @@ idioms:
       Variant of "a dime a dozen" — very common and of little value.
       Value-laden: the shilling marks cheapness.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'be two/ten
+      a penny — to be very common and therefore not valuable'
+      (structural analogue)"
+    trivial_pole: "extremely common and of negligible worth"
+    significant_pole: "rare and of considerable worth"
 
 
   # ===========================
@@ -208,6 +301,11 @@ idioms:
       Of negligible or no value. Value-laden: the farthing (quarter
       penny) is the smallest possible unit of insignificance.
     include: true
+    pole_def_source: "Collins English Dictionary: 'a former British bronze
+      coin worth a quarter of an old penny'; Dictionary.com brass farthing:
+      'something of little or no value'"
+    trivial_pole: "of negligible worth"
+    significant_pole: "of considerable worth"
 
   - phrase: "brass farthing"
     denomination: [farthing]
@@ -218,6 +316,10 @@ idioms:
       farthing." Value-laden: brass (base metal) + farthing (smallest
       coin) = maximally worthless. Common in parliamentary record.
     include: true
+    pole_def_source: "Dictionary.com: 'something of little or no value';
+      Collins: 'his opinion isn't worth a brass farthing'"
+    trivial_pole: "of the least possible worth"
+    significant_pole: "of substantial worth"
 
   - phrase: "uttermost farthing"
     denomination: [farthing]
@@ -228,24 +330,16 @@ idioms:
       of a debt. Value-laden: the farthing marks the smallest possible
       increment of obligation.
     include: true
+    pole_def_source: "Cambridge Dictionary farthing entry (Hansard
+      example): 'thou shalt by no means come out thence, till thou hast
+      paid the uttermost farthing'"
+    trivial_pole: "a negligible residual obligation"
+    significant_pole: "a complete and binding obligation"
 
 
   # ===========================
   #  TREATMENT — pound idioms
   # ===========================
-
-  - phrase: "pound of flesh"
-    denomination: [pound]
-    group: treatment
-    source: researcher
-    notes: >
-      Demanding exact repayment regardless of consequences (from
-      Shakespeare's Merchant of Venice). NOTE: "pound" here refers
-      to a unit of weight, not currency. However, the phrase is used
-      idiomatically in debt/obligation contexts where the monetary
-      resonance is active. Context-dependent — LLM disambiguation
-      should flag pure weight-measure uses.
-    include: true
 
   - phrase: "penny wise pound foolish"
     denomination: [penny, pound]
@@ -341,6 +435,15 @@ idioms:
       belated understanding. EXCLUDED from treatment.
     include: false
 
+  - phrase: "pound of flesh"
+    denomination: [pound]
+    group: treatment
+    source: researcher
+    notes: >
+      Demanding exact repayment regardless of consequences (from
+      Shakespeare's Merchant of Venice), "pound" here refers
+      to a unit of weight, not currency. 
+    include: false 
 
   # ===========================
   #  PLACEBO — non-monetary idioms
@@ -375,7 +478,9 @@ idioms:
     denomination: []
     group: placebo
     source: LIDIOMS-placebo
-    notes: "To deliberately ignore something. Nelson attribution makes it common in UK parliamentary rhetoric."
+    notes: >
+      To deliberately ignore something. Nelson attribution makes it
+      common in UK parliamentary rhetoric.
     include: true
 
   - phrase: "hot potato"
@@ -403,7 +508,9 @@ idioms:
     denomination: []
     group: placebo
     source: LIDIOMS-placebo
-    notes: "An ineffective person or official. Originally British stock-exchange slang. Common in parliamentary usage."
+    notes: >
+      An ineffective person or official. Originally British
+      stock-exchange slang. Common in parliamentary usage.
     include: true
 
   - phrase: "a bitter pill to swallow"
@@ -417,7 +524,10 @@ idioms:
     denomination: []
     group: placebo
     source: LIDIOMS-placebo
-    notes: "To do something in the cheapest or easiest way, sacrificing quality. NOTE: thematically adjacent to economy/cost but contains no denomination word."
+    notes: >
+      To do something in the cheapest or easiest way, sacrificing
+      quality. NOTE: thematically adjacent to economy/cost but contains
+      no denomination word.
     include: true
 
   - phrase: "water under the bridge"

@@ -1,7 +1,0 @@
-model,regression_type,false_regressor_denom,beta,se_nw,t_stat,p_value,n,n_fe_levels
-bge,placebo_vs_penny_idiom_FE,penny,0.006886,0.003162,2.177602,0.029436,49,11
-bge,placebo_vs_farthing_idiom_FE,farthing,0.019372,0.003820,5.071566,0.000000,68,11
-bge,placebo_vs_pound_idiom_FE,pound,0.019372,0.003820,5.071566,0.000000,68,11
-macberth,placebo_vs_penny_idiom_FE,penny,0.000636,0.000246,2.590562,0.009582,49,11
-macberth,placebo_vs_farthing_idiom_FE,farthing,0.002611,0.000607,4.302462,0.000017,68,11
-macberth,placebo_vs_pound_idiom_FE,pound,0.002611,0.000607,4.302462,0.000017,68,11
