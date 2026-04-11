@@ -85,11 +85,11 @@ MIN_OBS: int = 3
 # --- Fixed-bin defaults ---
 # Non-overlapping window width (years).  20-year bins ~4× the per-cell count
 # of 10-year decades while still resolving major inflationary episodes.
-BIN_WIDTH: int = 20
+BIN_WIDTH: int = 10
 # Maximum allowed gap between consecutive valid bins before skipping the pair.
 # Set to 2×BIN_WIDTH so one empty bin is permitted but two consecutive empty
 # bins are not.
-MAX_GAP: int = 40
+MAX_GAP: int = 20
 
 # --- Rolling-window defaults ---
 WINDOW_SIZE: int = 20   # total width of each observation window (years)

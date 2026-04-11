@@ -1,0 +1,43 @@
+model,idiom,pearson_r,p_value,n_decades
+bert,a pretty penny,-0.0121,0.9504,29
+bert,brass farthing,-0.4281,0.0183,30
+bert,in for a penny in for a pound,0.0539,0.8612,13
+bert,not a penny more,-0.1178,0.7015,13
+bert,not worth a farthing,-0.4362,0.0126,32
+bert,not worth a penny,-0.4088,0.0589,22
+bert,penny dreadful,-0.2595,0.2834,19
+bert,penny for your thoughts,-0.1094,0.6191,23
+bert,penny packets,0.2693,0.6614,5
+bert,penny-pinching,-0.4203,0.3478,7
+bert,shilling a dozen,-0.7144,0.0465,8
+bert,ten a penny,0.2946,0.4416,9
+bert,turn an honest penny,-0.5227,0.018,20
+bert,uttermost farthing,0.0404,0.832,30
+bge,a pretty penny,0.1632,0.3976,29
+bge,brass farthing,-0.3514,0.0569,30
+bge,in for a penny in for a pound,0.2659,0.3799,13
+bge,not a penny more,0.6469,0.0169,13
+bge,not worth a farthing,-0.6472,0.0001,32
+bge,not worth a penny,-0.3393,0.1224,22
+bge,penny dreadful,0.1266,0.6056,19
+bge,penny for your thoughts,-0.4103,0.0518,23
+bge,penny packets,0.4069,0.4966,5
+bge,penny-pinching,-0.039,0.9339,7
+bge,shilling a dozen,-0.1883,0.6553,8
+bge,ten a penny,0.5674,0.1111,9
+bge,turn an honest penny,-0.0992,0.6772,20
+bge,uttermost farthing,0.2448,0.1922,30
+macberth,a pretty penny,0.0536,0.7823,29
+macberth,brass farthing,-0.1663,0.3799,30
+macberth,in for a penny in for a pound,-0.0301,0.9223,13
+macberth,not a penny more,0.3981,0.1779,13
+macberth,not worth a farthing,-0.4614,0.0079,32
+macberth,not worth a penny,-0.3602,0.0997,22
+macberth,penny dreadful,0.0699,0.7762,19
+macberth,penny for your thoughts,-0.078,0.7234,23
+macberth,penny packets,0.4409,0.4574,5
+macberth,penny-pinching,-0.3604,0.4271,7
+macberth,shilling a dozen,-0.0943,0.8243,8
+macberth,ten a penny,0.246,0.5235,9
+macberth,turn an honest penny,-0.0246,0.9179,20
+macberth,uttermost farthing,0.1962,0.2987,30

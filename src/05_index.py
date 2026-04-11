@@ -347,7 +347,11 @@ def run_index(
         covers both fixed-20 and rolling-10 outputs from stage 04.
     """
     drift_path = data_dir / "processed" / "drift.parquet"
-    price_path = data_dir / "raw" / "price_index.csv"
+    # price_index.csv is shared reference data — look in data_dir/raw first,
+    # then fall back to the project-level data/raw so sub-corpus dirs work.
+    _local_price = data_dir / "raw" / "price_index.csv"
+    _root_price = Path(__file__).parent.parent / "data" / "raw" / "price_index.csv"
+    price_path = _local_price if _local_price.exists() else _root_price
     output_path = data_dir / "processed" / "drift_index.parquet"
 
     if output_path.exists() and not force:

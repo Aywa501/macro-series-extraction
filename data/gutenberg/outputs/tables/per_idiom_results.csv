@@ -1,0 +1,43 @@
+model,idiom,primary_denom,anomalous,beta,p_value,pearson_r,pearson_p,n
+bert,shilling a dozen,shilling,True,-0.04367,0.0959,-0.3931,0.0959,19
+bert,brass farthing,farthing,False,-0.01253,0.0007,-0.1787,0.0007,353
+bert,not worth a penny,penny,False,-0.0112,0.075,-0.2242,0.075,64
+bert,not worth a farthing,farthing,False,-0.01077,0.0206,-0.2216,0.0206,109
+bert,turn an honest penny,penny,False,-0.00882,0.0494,-0.1571,0.0494,157
+bert,uttermost farthing,farthing,False,-0.00654,0.1544,-0.0694,0.1544,423
+bert,penny for your thoughts,penny,False,-0.00433,0.1394,-0.0907,0.1394,267
+bert,penny-pinching,penny,False,-0.00414,0.5755,-0.18,0.5755,12
+bert,penny dreadful,penny,False,-0.00346,0.5304,-0.0453,0.5304,194
+bert,in for a penny in for a pound,penny,False,-0.00293,0.895,-0.0228,0.895,36
+bert,not a penny more,penny,False,3e-05,0.997,0.0004,0.997,74
+bert,ten a penny,penny,False,0.00031,0.975,0.0085,0.975,16
+bert,a pretty penny,penny,False,0.00283,0.231,0.0573,0.231,438
+bert,penny packets,penny,False,0.01103,0.2702,0.3166,0.2702,14
+bge,shilling a dozen,shilling,True,-0.05731,0.5544,-0.1447,0.5544,19
+bge,not worth a farthing,farthing,False,-0.03504,0.0004,-0.3317,0.0004,109
+bge,not worth a penny,penny,False,-0.01122,0.3274,-0.1244,0.3274,64
+bge,brass farthing,farthing,False,-0.01065,0.1765,-0.0721,0.1765,353
+bge,turn an honest penny,penny,False,-0.00655,0.4217,-0.0646,0.4217,157
+bge,penny-pinching,penny,False,0.00134,0.9057,0.0384,0.9057,12
+bge,penny for your thoughts,penny,False,0.00184,0.7186,0.0222,0.7186,267
+bge,a pretty penny,penny,False,0.00208,0.6294,0.0231,0.6294,438
+bge,uttermost farthing,farthing,False,0.00229,0.7595,0.0149,0.7595,423
+bge,penny dreadful,penny,False,0.00242,0.7251,0.0254,0.7251,194
+bge,in for a penny in for a pound,penny,False,0.00913,0.7822,0.0477,0.7822,36
+bge,not a penny more,penny,False,0.00951,0.1668,0.1624,0.1668,74
+bge,penny packets,penny,False,0.03328,0.1171,0.4381,0.1171,14
+bge,ten a penny,penny,False,0.03674,0.3611,0.2447,0.3611,16
+macberth,not worth a farthing,farthing,False,-0.00249,0.0173,-0.2276,0.0173,109
+macberth,ten a penny,penny,False,-0.00228,0.7186,-0.0978,0.7186,16
+macberth,not worth a penny,penny,False,-0.00144,0.244,-0.1477,0.244,64
+macberth,brass farthing,farthing,False,-0.00087,0.5046,-0.0356,0.5046,353
+macberth,penny for your thoughts,penny,False,-0.00037,0.6464,-0.0282,0.6464,267
+macberth,turn an honest penny,penny,False,-0.00035,0.6887,-0.0322,0.6887,157
+macberth,penny-pinching,penny,False,-5e-05,0.978,-0.009,0.978,12
+macberth,a pretty penny,penny,False,0.00012,0.7571,0.0148,0.7571,438
+macberth,uttermost farthing,farthing,False,0.00015,0.8909,0.0067,0.8909,423
+macberth,in for a penny in for a pound,penny,False,0.00106,0.8478,0.0331,0.8478,36
+macberth,penny dreadful,penny,False,0.00128,0.2834,0.0774,0.2834,194
+macberth,penny packets,penny,False,0.00254,0.2098,0.3573,0.2098,14
+macberth,not a penny more,penny,False,0.00255,0.2158,0.1456,0.2158,74
+macberth,shilling a dozen,shilling,True,0.00401,0.805,0.0607,0.805,19

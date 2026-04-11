@@ -1,0 +1,4 @@
+model,regression_type,beta_obs,p_permutation,beta_null_mean,beta_null_p05,n_shuffles
+bert,farthing_only,-0.007878,0.84,-0.016762,-0.033257,200
+bge,farthing_only,-0.010956,0.315,-0.006884,-0.013759,200
+macberth,farthing_only,-0.009683,0.315,-0.00646,-0.011986,200

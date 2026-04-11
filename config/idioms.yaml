@@ -459,6 +459,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "A small visible part of a much larger problem."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'a small, noticeable part of a problem, the total size of which is really much greater'"
+    trivial_pole: "a minor visible sign of a negligible underlying issue"
+    significant_pole: "a minor visible sign of a considerable underlying problem"
 
   - phrase: "throw a spanner in the works"
     denomination: []
@@ -466,6 +469,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "To sabotage or disrupt a plan. British idiom, common in Hansard."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to do something that prevents a plan or activity from succeeding'"
+    trivial_pole: "a negligible disruption to a minor plan or activity"
+    significant_pole: "a considerable disruption to an important plan or activity"
 
   - phrase: "the last straw"
     denomination: []
@@ -473,6 +479,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "The final problem in a series that makes the situation unbearable."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'the last in a series of unpleasant events that finally makes you feel that you cannot continue to accept a bad situation'"
+    trivial_pole: "a negligible final irritation in a minor series of inconveniences"
+    significant_pole: "a considerable final burden in a serious series of difficulties"
 
   - phrase: "turn a blind eye"
     denomination: []
@@ -482,6 +491,9 @@ idioms:
       To deliberately ignore something. Nelson attribution makes it
       common in UK parliamentary rhetoric.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to ignore something that you know is wrong'"
+    trivial_pole: "deliberate neglect of a negligible wrongdoing"
+    significant_pole: "deliberate neglect of a considerable wrongdoing"
 
   - phrase: "hot potato"
     denomination: []
@@ -489,6 +501,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "A controversial or sensitive issue. Very common in parliamentary debate."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'a situation or subject that is difficult to deal with and causes a lot of disagreement'"
+    trivial_pole: "a matter causing negligible disagreement or difficulty"
+    significant_pole: "a matter causing considerable disagreement or difficulty"
 
   - phrase: "back to square one"
     denomination: []
@@ -496,6 +511,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "Starting over from the beginning."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'back to the beginning, because an attempt to do something has failed'"
+    trivial_pole: "returning to the beginning after negligible prior effort"
+    significant_pole: "returning to the beginning after considerable prior effort"
 
   - phrase: "bite the bullet"
     denomination: []
@@ -503,6 +521,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "To endure a painful situation with courage. Common in policy debate."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to force yourself to do something unpleasant or difficult'"
+    trivial_pole: "accepting a negligible hardship with resignation"
+    significant_pole: "accepting a considerable hardship with courage"
 
   - phrase: "lame duck"
     denomination: []
@@ -512,6 +533,9 @@ idioms:
       An ineffective person or official. Originally British
       stock-exchange slang. Common in parliamentary usage.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'a person or organization that is in trouble and needs help'"
+    trivial_pole: "a person or institution of negligible effectiveness or authority"
+    significant_pole: "a person or institution of considerably diminished effectiveness or authority"
 
   - phrase: "a bitter pill to swallow"
     denomination: []
@@ -519,6 +543,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "An unpleasant fact or situation that must be accepted."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'something that is very unpleasant but must be accepted'"
+    trivial_pole: "a negligible unpleasantness that must be accepted"
+    significant_pole: "a considerable unpleasantness that must be accepted"
 
   - phrase: "cut corners"
     denomination: []
@@ -529,6 +556,9 @@ idioms:
       quality. NOTE: thematically adjacent to economy/cost but contains
       no denomination word.
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to do something in the easiest, cheapest, or fastest way, often by ignoring rules or leaving something out'"
+    trivial_pole: "making negligible reductions in quality or care"
+    significant_pole: "making considerable reductions in quality or care"
 
   - phrase: "water under the bridge"
     denomination: []
@@ -536,6 +566,9 @@ idioms:
     source: LIDIOMS-placebo
     notes: "Past events that are no longer relevant."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'used to say that something happened in the past and cannot now be changed'"
+    trivial_pole: "a negligible past matter that can no longer be changed"
+    significant_pole: "a considerable past matter that can no longer be changed"
 
   - phrase: "beat around the bush"
     denomination: []
@@ -543,3 +576,6 @@ idioms:
     source: LIDIOMS-placebo
     notes: "To avoid getting to the point. Common in parliamentary criticism."
     include: true
+    pole_def_source: "Cambridge Advanced Learner's Dictionary: 'to avoid talking about what is important'"
+    trivial_pole: "negligible evasion of a minor point"
+    significant_pole: "considerable evasion of an important point"

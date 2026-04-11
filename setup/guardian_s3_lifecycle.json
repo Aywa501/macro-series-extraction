@@ -1,0 +1,17 @@
+{
+  "Rules": [
+    {
+      "ID": "guardian-raw-to-glacier",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "raw/guardian/"
+      },
+      "Transitions": [
+        {
+          "Days": 7,
+          "StorageClass": "GLACIER"
+        }
+      ]
+    }
+  ]
+}

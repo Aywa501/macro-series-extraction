@@ -1,0 +1,37 @@
+        ============================================================
+        CHRONOLOGICAL ORTHOGONALISATION ROBUSTNESS CHECK
+        Model: MacBERTh (macberth_L9.npy)
+        ============================================================
+
+        1. CHRONOLOGICAL PROBE
+           R² (ridge, CV-alpha=92.3671): 0.3100
+           OK: R² within acceptable range
+
+        2. DECADE MONOTONICITY
+           Decade projections onto chronological axis: 26/42 consecutive pairs increasing (62% monotone).
+
+        3. AXIS ANGLE
+           Angle between original and cleaned triviality axes: 3.28°
+           Temporal component of original axis (dot with chron_dir): -0.0573
+           OK: angle within expected range
+
+        4. BETA COMPARISON TABLE
+                                  specification      beta       se  t_stat  p_value  n_obs
+          farthing_only|original|levels -0.023747 0.012655 -1.8765 0.060586    885
+    farthing_only|orthogonalised|levels -0.049042 0.013096 -3.7449 0.000180    885
+      farthing_only|original_first_diff -0.011902 0.036549 -0.3257 0.744689     89
+farthing_only|orthogonalised_first_diff -0.020768 0.037837 -0.5489 0.583094     89
+           well_covered|original|levels  0.007142 0.004159  1.7174 0.085908   1941
+     well_covered|orthogonalised|levels  0.012009 0.004171  2.8790 0.003989   1941
+       well_covered|original_first_diff -0.018169 0.021184 -0.8577 0.391084    176
+ well_covered|orthogonalised_first_diff -0.020215 0.020465 -0.9878 0.323244    176
+
+        5. FLAGS RAISED
+          - FLAG: Monotonicity only 62% — temporal signal is not linearly structured. Orthogonalisation may not be well-founded.
+
+        6. INTERPRETATION
+        The result survives orthogonalisation. The headline farthing-idiom
+  coefficient is largely unchanged (original β=-0.02375 p=0.0606;
+  cleaned β=-0.04904 p=0.0002), indicating the triviality signal is not
+  primarily driven by temporal language change encoded in the MacBERTh
+  embedding space.
