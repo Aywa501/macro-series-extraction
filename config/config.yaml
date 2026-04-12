@@ -1,0 +1,219 @@
+# ===========================================================================
+# Configuration
+# All paths are relative to the project root (project/).
+# ===========================================================================
+
+model:
+  name: "bert-base-uncased"
+  n_layers: 12
+  hidden_dim: 768
+  batch_size: 32
+
+lambda:
+  # λ range covers the full Penn corpus year span by default (read from
+  # corpus/penn_sentences.parquet at runtime).  Override by setting explicit
+  # values:
+  #   override_min: 1400
+  #   override_max: 1800
+  default_step: 25
+
+layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]   # 0-indexed
+
+# ---------------------------------------------------------------------------
+# Historical monetary data (UK only, from historical_research.md)
+# ---------------------------------------------------------------------------
+
+denomination_windows:
+  penny:
+    introduction_year: 757
+    peak_start: 1860
+    peak_end: 1940
+    demonetisation_year: 1971
+    notes: >
+      Silver era 757–1660 (general circ.); copper Cartwheel 1797; bronze
+      Gladstone reform 1860; new penny replaces it on Decimal Day 1971.
+  farthing:
+    introduction_year: 1250
+    peak_start: 1860
+    peak_end: 1914
+    demonetisation_year: 1961
+    notes: >
+      Cut-penny quarters earlier; circular coin from Henry III; bronze 1860;
+      last minted 1956; demonetised 1 Jan 1961.
+  shilling:
+    introduction_year: 1504
+    peak_start: 1700
+    peak_end: 1914
+    demonetisation_year: 1990
+    notes: >
+      Accounting unit (12d) predates coin; testoon 1504; peak as "bob";
+      silver → cupro-nickel 1947; bridged to 5p in 1968; final demonetisation 1990.
+  pound:
+    introduction_year: 1489
+    peak_start: 1816
+    peak_end: 1914
+    demonetisation_year: 1971
+    notes: >
+      Accounting unit (240d) from 8th century; first physical sovereign 1489;
+      Great Debasement 1544–51; Gold Standard 1816–1914; paper from 1914;
+      decimalised to 100 new pence on 15 Feb 1971.
+
+idiom_first_attestation:
+  "penny for your thoughts":            1522   # Sir Thomas More
+  "uttermost farthing":                 1526   # Tyndale Bible (Matthew 5:26)
+  "not worth a farthing":               1300   # medieval, approximate
+  "penny wise pound foolish":           1605   # Francis Bacon (Essays)
+  "in for a penny in for a pound":      1695   # Edward Ravenscroft comedy
+  "a pretty penny":                     1750   # 18th-century, approximate
+  "look after the pennies":             1750   # attr. William Lowndes, approximate
+  "penny dreadful":                     1850   # Victorian penny press
+  "ten a penny":                        1850   # Victorian, approximate
+  "shilling a dozen":                   1850   # Victorian, approximate
+  "not a penny more":                   1870   # Victorian, approximate
+  "not have two pennies to rub together": 1880
+  "turn an honest penny":               1880   # Victorian, approximate
+  "brass farthing":                     1650   # 17th-century, approximate
+  "not the full shilling":              1916   # WWI-era slang
+  "penny-pinching":                     1900   # early 20th-century
+  "penny packets":                      1915   # WWI military usage
+  "not worth a penny":                  null
+  "pennies in the pound":               null
+
+robustness_checks:
+  - year: 1279
+    event: "Edward I recoinage"
+    type: recoinage
+    severity: medium
+    denominations: [penny, farthing]
+
+  - year: 1344
+    end_year: 1464
+    event: "Penny weight reductions"
+    type: debasement
+    severity: low
+    denominations: [penny]
+
+  - year: 1504
+    event: "First shilling coin"
+    type: introduction
+    severity: low
+    denominations: [shilling]
+
+  - year: 1544
+    end_year: 1551
+    event: "Great Debasement"
+    type: debasement
+    severity: high
+    denominations: [penny, shilling, pound]
+
+  - year: 1560
+    event: "Elizabethan Recoinage"
+    type: recoinage
+    severity: medium
+    denominations: [penny, shilling, pound]
+
+  - year: 1696
+    end_year: 1698
+    event: "Great Recoinage"
+    type: recoinage
+    severity: high
+    denominations: [penny, shilling, pound]
+
+  - year: 1797
+    event: "Bank Restriction / Cartwheel penny"
+    type: monetary_reform
+    severity: medium
+    denominations: [penny, pound]
+
+  - year: 1816
+    event: "Gold Standard"
+    type: monetary_reform
+    severity: medium
+    denominations: [penny, shilling, pound, farthing]
+
+  - year: 1860
+    event: "Bronze coinage reform"
+    type: monetary_reform
+    severity: low
+    denominations: [penny, farthing]
+
+  - year: 1914
+    event: "WWI / gold suspended"
+    type: monetary_shock
+    severity: high
+    denominations: [penny, shilling, pound, farthing]
+
+  - year: 1947
+    event: "Silver → cupro-nickel"
+    type: debasement
+    severity: medium
+    denominations: [shilling, pound]
+
+  - year: 1961
+    event: "Farthing demonetised"
+    type: demonetisation
+    severity: medium
+    denominations: [farthing]
+
+  - year: 1971
+    event: "Decimalisation"
+    type: demonetisation
+    severity: high
+    denominations: [penny, shilling, pound, farthing]
+
+# ---------------------------------------------------------------------------
+# Currency term forms for Stage 03 occurrence counting
+# ---------------------------------------------------------------------------
+
+currency_terms:
+  - {name: penny,    forms: [penny, pennies]}
+  - {name: farthing, forms: [farthing, farthings]}
+  - {name: shilling, forms: [shilling, shillings]}
+  - {name: pound,    forms: [pound, pounds]}
+
+currency_dropout_threshold: 0.10
+
+# ---------------------------------------------------------------------------
+# File paths (relative to project root)
+# ---------------------------------------------------------------------------
+
+paths:
+  idioms_config:    "config/idioms.yaml"
+
+  # Stage 00
+  penn_corpus_dir:  "../penn_parsed/Penn_Parsed_Corpora_of_Historical_English/data"
+  penn_year_map:    "data/corpus/penn_year_map.json"
+  penn_sentences:   "data/corpus/penn_sentences.parquet"
+
+  # Stage 01  (embeddings stored outside repo — ~11 GB)
+  penn_embeddings:  "../data/embeddings/penn_embeddings_by_layer.npy"
+
+  # Stage 01b  (temporal regression parameters)
+  temporal_directions:       "data/temporal/directions.npy"
+  temporal_dir_output:       "data/temporal/direction_final.npy"
+  temporal_diagnostics:      "data/temporal/diagnostics.csv"
+  temporal_coef_norms:       "data/temporal/coef_norms.npy"
+  temporal_intercepts:       "data/temporal/intercepts.npy"
+  temporal_mean_embeddings:  "data/temporal/mean_embeddings.npy"
+  temporal_directions_clean: "data/temporal/directions_clean.npy"
+  temporal_dir_output_clean: "data/temporal/direction_final_clean.npy"
+  temporal_params_summary:   "data/temporal/params_summary.csv"
+
+  # Stage 02  (triviality axes)
+  triviality_axes:        "data/triviality/axes.npy"
+  triviality_axes_index:  "data/triviality/axes_index.csv"
+  triviality_axis_pooled: "data/triviality/axis_pooled.npy"
+
+  # Stage 03  (currency occurrence counts)
+  currency_counts:  "data/corpus/currency_counts.parquet"
+  currency_windows: "data/corpus/currency_windows.csv"
+
+  # Stage 04  (unified intervention results)
+  intervention_results: "data/results/intervention_results.parquet"
+
+  # Stage 05  (analysis outputs)
+  intervention_slopes:    "data/results/slopes.csv"
+  layer_sensitivity_npy:  "data/results/layer_sensitivity.npy"
+  layer_sensitivity_idx:  "data/results/layer_sensitivity_index.csv"
+  plots_dir:              "data/plots"
+  geometry_dir:           "data/geometry"

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Env
+.env
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Large binary data — never commit
+*.npy
+*.npy.gz
+
+# Parquet files are large; track only committed ones explicitly
+*.parquet
+
+# Logs and scratch
+*.log
+*.pid
+_embed_staging/
+
+# Credentials / keys
+*.pem
