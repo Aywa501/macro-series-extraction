@@ -15,8 +15,8 @@ produces:
 
 Usage
 -----
-    python src/value_probe/02_cross_temporal.py --model bert
-    python src/value_probe/02_cross_temporal.py --model macberth
+    python src/analysis/02_cross_temporal.py --model bert
+    python src/analysis/02_cross_temporal.py --model macberth
 
 Prerequisites
 -------------
@@ -39,7 +39,7 @@ from scipy.stats import spearmanr
 from transformers import AutoModel, AutoTokenizer
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src" / "value_probe"))
+sys.path.insert(0, str(PROJECT_ROOT / "src" / "analysis"))
 from _common import (
     SEQUENCES, YEAR_TEMPLATES, YEAR_PROBE_YEARS, VALUE_LAYER,
 )
@@ -59,7 +59,7 @@ N_LAYERS = 12   # bert-base and MacBERTh both have 12 transformer layers
 def load_model(model_key: str):
     name = MODEL_NAMES[model_key]
     print(f"Loading {name} …", flush=True)
-    device    = torch.device("cpu")
+    device    = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(name)
     model     = AutoModel.from_pretrained(
         name, output_hidden_states=True).to(device).eval()

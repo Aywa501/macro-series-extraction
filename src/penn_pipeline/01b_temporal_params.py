@@ -48,8 +48,8 @@ data/temporal/params_summary.csv            — all params in one table
 
 Usage
 -----
-    python src/01b_temporal_params.py
-    python src/01b_temporal_params.py --dry-run
+    python src/penn_pipeline/01b_temporal_params.py
+    python src/penn_pipeline/01b_temporal_params.py --dry-run
 """
 
 from __future__ import annotations
@@ -65,8 +65,8 @@ import yaml
 from sklearn.linear_model import RidgeCV
 from sklearn.preprocessing import StandardScaler
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "src" / "utils"))
 
 from config_utils import get_model_cfg, resolve_paths
 

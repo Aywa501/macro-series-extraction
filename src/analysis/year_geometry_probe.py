@@ -45,8 +45,9 @@ import torch
 
 warnings.filterwarnings("ignore")
 
-OUT_DIR      = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+OUT_DIR      = PROJECT_ROOT / "data" / "appendix"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Carrier sentence templates — {year} is substituted with the integer year.

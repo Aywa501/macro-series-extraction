@@ -17,8 +17,8 @@ Outputs (under data/{model}/value_probe/)
 
 Usage
 -----
-    python src/value_probe/01_build_axes.py --model bert
-    python src/value_probe/01_build_axes.py --model macberth
+    python src/analysis/01_build_axes.py --model bert
+    python src/analysis/01_build_axes.py --model macberth
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ from transformers import AutoModel, AutoTokenizer
 
 # Locate project root and import shared constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src" / "value_probe"))
+sys.path.insert(0, str(PROJECT_ROOT / "src" / "analysis"))
 from _common import (
     DENOMINATIONS, VALUE_TEMPLATES, YEAR_TEMPLATES,
     YEAR_PROBE_YEARS, VALUE_LAYER,
@@ -58,11 +58,11 @@ MODEL_NAMES = {
 def load_model(model_key: str):
     name = MODEL_NAMES[model_key]
     print(f"Loading {name} …", flush=True)
-    device    = torch.device("cpu")
+    device    = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(name)
     model     = AutoModel.from_pretrained(
         name, output_hidden_states=True).to(device).eval()
-    print("Loaded.\n", flush=True)
+    print(f"Loaded. Device: {device}\n", flush=True)
     return model, tokenizer, device
 
 

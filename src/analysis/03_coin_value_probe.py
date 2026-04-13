@@ -23,9 +23,9 @@ Outputs (under data/{model}/value_probe/)
 
 Usage
 -----
-    python src/value_probe/03_coin_value_probe.py --model bert
-    python src/value_probe/03_coin_value_probe.py --model macberth
-    python src/value_probe/03_coin_value_probe.py --model bert \\
+    python src/analysis/03_coin_value_probe.py --model bert
+    python src/analysis/03_coin_value_probe.py --model macberth
+    python src/analysis/03_coin_value_probe.py --model bert \\
         --millennium-path /path/to/a-millennium-of-macroeconomic-data-for-the-uk.xlsx
 
 Prerequisites
@@ -49,9 +49,9 @@ from scipy.stats import spearmanr
 from transformers import AutoModel, AutoTokenizer
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src" / "value_probe"))
+sys.path.insert(0, str(PROJECT_ROOT / "src" / "analysis"))
 from _common import (
-    TEST_COINS, TEST_YEARS, TIME_TEMPLATES, VALUE_TEMPLATES, VALUE_LAYER,
+    TEST_COINS, TEST_YEARS, TIME_TEMPLATES, VALUE_TEMPLATES, VALUE_LAYER as _DEFAULT_LAYER,
 )
 
 MODEL_NAMES = {
@@ -61,6 +61,8 @@ MODEL_NAMES = {
 
 DEFAULT_MILLENNIUM_PATH = (
     PROJECT_ROOT / "a-millennium-of-macroeconomic-data-for-the-uk.xlsx"
+    if (PROJECT_ROOT / "a-millennium-of-macroeconomic-data-for-the-uk.xlsx").exists()
+    else PROJECT_ROOT.parent / "a-millennium-of-macroeconomic-data-for-the-uk.xlsx"
 )
 
 # Window (half-width in years) for smoothing real data at test years
@@ -74,7 +76,7 @@ WINDOW_HALF = 7   # ±7 years = 15-year centred window
 def load_model(model_key: str):
     name = MODEL_NAMES[model_key]
     print(f"Loading {name} …", flush=True)
-    device    = torch.device("cpu")
+    device    = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(name)
     model     = AutoModel.from_pretrained(
         name, output_hidden_states=True).to(device).eval()
@@ -94,21 +96,21 @@ def cls_at_layer(model, tokenizer, device, sentence: str, layer: int) -> np.ndar
 # ---------------------------------------------------------------------------
 
 def embed_coin_year(model, tokenizer, device,
-                    coin: str, year: int) -> np.ndarray:
-    """Centroid of TIME_TEMPLATES for (coin, year) at VALUE_LAYER."""
+                    coin: str, year: int, layer: int) -> np.ndarray:
+    """Centroid of TIME_TEMPLATES for (coin, year) at the given layer."""
     vecs = []
     for tmpl in TIME_TEMPLATES:
         sent = tmpl.format(y=year, c=coin)
-        vecs.append(cls_at_layer(model, tokenizer, device, sent, VALUE_LAYER))
+        vecs.append(cls_at_layer(model, tokenizer, device, sent, layer))
     return np.mean(vecs, axis=0)
 
 
-def embed_coin_neutral(model, tokenizer, device, coin: str) -> np.ndarray:
+def embed_coin_neutral(model, tokenizer, device, coin: str, layer: int) -> np.ndarray:
     """Baseline: coin embedded without year context (VALUE_TEMPLATES)."""
     vecs = []
     for tmpl in VALUE_TEMPLATES:
         sent = tmpl.format(c=coin)
-        vecs.append(cls_at_layer(model, tokenizer, device, sent, VALUE_LAYER))
+        vecs.append(cls_at_layer(model, tokenizer, device, sent, layer))
     return np.mean(vecs, axis=0)
 
 
@@ -241,7 +243,9 @@ def make_main_plot(
     results_df:    pd.DataFrame,
     model_key:     str,
     plots_dir:     Path,
+    layer:         int = _DEFAULT_LAYER,
 ) -> None:
+    VALUE_LAYER = layer
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     ax1, ax2, ax3 = axes
 
@@ -325,6 +329,8 @@ def main() -> None:
         description="Coin value × time probe vs BoE purchasing power data."
     )
     parser.add_argument("--model", choices=["bert", "macberth"], default="bert")
+    parser.add_argument("--layer", type=int, default=None,
+                        help="Layer to use (default: VALUE_LAYER from _common.py).")
     parser.add_argument(
         "--millennium-path",
         type=Path,
@@ -332,7 +338,8 @@ def main() -> None:
         help="Path to a-millennium-of-macroeconomic-data-for-the-uk.xlsx",
     )
     args = parser.parse_args()
-    model_key = args.model
+    model_key  = args.model
+    VALUE_LAYER = args.layer if args.layer is not None else _DEFAULT_LAYER
 
     out_dir   = PROJECT_ROOT / "data" / model_key / "value_probe"
     plots_dir = out_dir / "plots"
@@ -340,6 +347,7 @@ def main() -> None:
     plots_dir.mkdir(parents=True, exist_ok=True)
 
     # Check prerequisites
+    print(f"Using layer {VALUE_LAYER} for embeddings.")
     val_path  = out_dir / f"value_direction_L{VALUE_LAYER}.npy"
     time_path = out_dir / f"time_direction_L{VALUE_LAYER}.npy"
     for p in (val_path, time_path):
@@ -361,14 +369,14 @@ def main() -> None:
     coin_rows = []
     for coin, pence in TEST_COINS:
         # Baseline (no year context)
-        baseline_emb  = embed_coin_neutral(model, tokenizer, device, coin)
+        baseline_emb  = embed_coin_neutral(model, tokenizer, device, coin, VALUE_LAYER)
         baseline_vproj = float(np.dot(baseline_emb, value_dir))
         baseline_tproj = float(np.dot(baseline_emb, time_dir))
         print(f"  {coin} baseline: value_proj={baseline_vproj:.5f}  "
               f"time_proj={baseline_tproj:.5f}")
 
         for year in TEST_YEARS:
-            emb    = embed_coin_year(model, tokenizer, device, coin, year)
+            emb    = embed_coin_year(model, tokenizer, device, coin, year, VALUE_LAYER)
             vproj  = float(np.dot(emb, value_dir))
             tproj  = float(np.dot(emb, time_dir))
             coin_rows.append({
@@ -447,7 +455,7 @@ def main() -> None:
     print(f"\nSaved → {csv1}")
     print(f"Saved → {csv2}")
 
-    make_main_plot(millennium_df, results_df, model_key, plots_dir)
+    make_main_plot(millennium_df, results_df, model_key, plots_dir, layer=VALUE_LAYER)
 
 
 if __name__ == "__main__":

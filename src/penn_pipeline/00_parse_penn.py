@@ -24,8 +24,8 @@ Any sentence whose year cannot be resolved is silently dropped.
 
 Usage
 -----
-    python src/00_parse_penn.py
-    python src/00_parse_penn.py --dry-run
+    python src/penn_pipeline/00_parse_penn.py
+    python src/penn_pipeline/00_parse_penn.py --dry-run
 """
 
 from __future__ import annotations
@@ -41,8 +41,8 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "src" / "utils"))
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 

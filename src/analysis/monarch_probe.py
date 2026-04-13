@@ -50,7 +50,8 @@ import torch
 warnings.filterwarnings("ignore")
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-OUT_DIR = Path(__file__).resolve().parent
+OUT_DIR = PROJECT_ROOT / "data" / "appendix"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Monarch table  (display_name, probe_phrase, reign_start, reign_end)
