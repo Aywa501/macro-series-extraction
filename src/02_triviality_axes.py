@@ -31,6 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from hooks import embed_sentences
+from config_utils import get_model_cfg, resolve_paths
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
@@ -55,13 +56,14 @@ def _load_treatment_idioms(idioms_yaml: Path) -> list[dict]:
     return idioms
 
 
-def run(cfg: dict, dry_run: bool) -> None:
+def run(cfg: dict, model_key: str, dry_run: bool) -> None:
     import torch
 
-    paths      = cfg["paths"]
-    model_name = cfg["model"]["name"]
-    batch_size = cfg["model"]["batch_size"]
-    n_layers   = cfg["model"]["n_layers"]
+    mcfg       = get_model_cfg(cfg, model_key)
+    paths      = resolve_paths(cfg, model_key)
+    model_name = mcfg["name"]
+    batch_size = mcfg["batch_size"]
+    n_layers   = mcfg["n_layers"]
 
     idioms_path       = PROJECT_ROOT / paths["idioms_config"]
     axes_path         = PROJECT_ROOT / paths["triviality_axes"]
@@ -151,6 +153,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Stage 02: Define triviality axes from idiom poles."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model to embed poles with (default: bert).")
     parser.add_argument("--dry-run", action="store_true",
                         help="Use only the first 5 idioms.")
     parser.add_argument("--log-level", default="INFO",
@@ -163,7 +168,7 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    run(cfg, args.dry_run)
+    run(cfg, args.model, args.dry_run)
 
 
 if __name__ == "__main__":

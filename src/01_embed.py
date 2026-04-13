@@ -41,19 +41,21 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from hooks import embed_sentences
+from config_utils import get_model_cfg, resolve_paths
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
 logger = logging.getLogger(__name__)
 
 
-def run(cfg: dict, dry_run: bool) -> None:
+def run(cfg: dict, model_key: str, dry_run: bool) -> None:
     import torch
     from transformers import BertModel, BertTokenizerFast
 
-    paths      = cfg["paths"]
-    model_name = cfg["model"]["name"]
-    batch_size = cfg["model"]["batch_size"]
+    mcfg       = get_model_cfg(cfg, model_key)
+    paths      = resolve_paths(cfg, model_key)
+    model_name = mcfg["name"]
+    batch_size = mcfg["batch_size"]
 
     sentences_path = PROJECT_ROOT / paths["penn_sentences"]
     emb_path       = PROJECT_ROOT / paths["penn_embeddings"]
@@ -140,8 +142,11 @@ def main() -> None:
         cfg = yaml.safe_load(fh)
 
     parser = argparse.ArgumentParser(
-        description="Stage 01: Embed Penn sentences with BERT (no regression)."
+        description="Stage 01: Embed Penn sentences with the chosen model (no regression)."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model to embed with (default: bert).")
     parser.add_argument("--dry-run", action="store_true",
                         help="Use only the first 50 sentences.")
     parser.add_argument("--log-level", default="INFO",
@@ -154,7 +159,7 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    run(cfg, args.dry_run)
+    run(cfg, args.model, args.dry_run)
 
 
 if __name__ == "__main__":

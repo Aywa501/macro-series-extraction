@@ -197,6 +197,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Stage 03: Count currency term occurrences in Penn corpus."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Model key (ignored by this script — corpus counts are shared).")
     parser.add_argument("--dry-run", action="store_true",
                         help="Subsample to 5000 sentences for speed.")
     parser.add_argument("--log-level", default="INFO",

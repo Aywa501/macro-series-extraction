@@ -3,11 +3,17 @@
 # All paths are relative to the project root (project/).
 # ===========================================================================
 
-model:
-  name: "bert-base-uncased"
-  n_layers: 12
-  hidden_dim: 768
-  batch_size: 32
+models:
+  bert:
+    name: "bert-base-uncased"
+    n_layers: 12
+    hidden_dim: 768
+    batch_size: 32
+  macberth:
+    name: "emanjavacas/MacBERTh"
+    n_layers: 12
+    hidden_dim: 768
+    batch_size: 16   # smaller batch — MacBERTh tokenizer may produce longer sequences
 
 lambda:
   # λ range covers the full Penn corpus year span by default (read from
@@ -185,35 +191,39 @@ paths:
   penn_year_map:    "data/corpus/penn_year_map.json"
   penn_sentences:   "data/corpus/penn_sentences.parquet"
 
-  # Stage 01  (embeddings stored outside repo — ~11 GB)
-  penn_embeddings:  "../data/embeddings/penn_embeddings_by_layer.npy"
+  # Stage 01  (embeddings stored outside repo — ~11 GB per model)
+  # {model} is substituted at runtime with the --model argument (bert/macberth)
+  penn_embeddings:  "../data/embeddings/{model}/penn_embeddings_by_layer.npy"
 
-  # Stage 01b  (temporal regression parameters)
-  temporal_directions:       "data/temporal/directions.npy"
-  temporal_dir_output:       "data/temporal/direction_final.npy"
-  temporal_diagnostics:      "data/temporal/diagnostics.csv"
-  temporal_coef_norms:       "data/temporal/coef_norms.npy"
-  temporal_intercepts:       "data/temporal/intercepts.npy"
-  temporal_mean_embeddings:  "data/temporal/mean_embeddings.npy"
-  temporal_directions_clean: "data/temporal/directions_clean.npy"
-  temporal_dir_output_clean: "data/temporal/direction_final_clean.npy"
-  temporal_params_summary:   "data/temporal/params_summary.csv"
+  # Stage 01b  (temporal regression parameters — model-specific)
+  temporal_directions:       "data/{model}/temporal/directions.npy"
+  temporal_dir_output:       "data/{model}/temporal/direction_final.npy"
+  temporal_diagnostics:      "data/{model}/temporal/diagnostics.csv"
+  temporal_coef_norms:       "data/{model}/temporal/coef_norms.npy"
+  temporal_intercepts:       "data/{model}/temporal/intercepts.npy"
+  temporal_mean_embeddings:  "data/{model}/temporal/mean_embeddings.npy"
+  temporal_directions_clean: "data/{model}/temporal/directions_clean.npy"
+  temporal_dir_output_clean: "data/{model}/temporal/direction_final_clean.npy"
+  temporal_params_summary:   "data/{model}/temporal/params_summary.csv"
 
-  # Stage 02  (triviality axes)
-  triviality_axes:        "data/triviality/axes.npy"
-  triviality_axes_index:  "data/triviality/axes_index.csv"
-  triviality_axis_pooled: "data/triviality/axis_pooled.npy"
+  # Stage 02  (triviality axes — model-specific: pole embeddings depend on model)
+  triviality_axes:        "data/{model}/triviality/axes.npy"
+  triviality_axes_index:  "data/{model}/triviality/axes_index.csv"
+  triviality_axis_pooled: "data/{model}/triviality/axis_pooled.npy"
 
-  # Stage 03  (currency occurrence counts)
+  # Stage 03  (currency occurrence counts — corpus-only, shared across models)
   currency_counts:  "data/corpus/currency_counts.parquet"
   currency_windows: "data/corpus/currency_windows.csv"
 
-  # Stage 04  (unified intervention results)
-  intervention_results: "data/results/intervention_results.parquet"
+  # Stage 04  (unified intervention results — model-specific)
+  intervention_results: "data/{model}/results/intervention_results.parquet"
 
-  # Stage 05  (analysis outputs)
-  intervention_slopes:    "data/results/slopes.csv"
-  layer_sensitivity_npy:  "data/results/layer_sensitivity.npy"
-  layer_sensitivity_idx:  "data/results/layer_sensitivity_index.csv"
-  plots_dir:              "data/plots"
-  geometry_dir:           "data/geometry"
+  # Stage 05  (analysis outputs — model-specific)
+  intervention_slopes:    "data/{model}/results/slopes.csv"
+  layer_sensitivity_npy:  "data/{model}/results/layer_sensitivity.npy"
+  layer_sensitivity_idx:  "data/{model}/results/layer_sensitivity_index.csv"
+  plots_dir:              "data/{model}/plots"
+  geometry_dir:           "data/{model}/geometry"
+
+  # External data (outside repo, relative to project root — shared)
+  millennium_data: "../a-millennium-of-macroeconomic-data-for-the-uk.xlsx"

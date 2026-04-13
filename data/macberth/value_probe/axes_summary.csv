@@ -1,0 +1,2 @@
+model,layer,pearson_r_value_vs_logpence,pearson_p_value,spearman_rho_time_vs_year,spearman_p_time,cosine_value_time,angle_value_time_deg
+macberth,4,0.7858286624696955,0.007043912415975645,0.9464285714285712,9.447938510352377e-08,-0.08755702525377274,84.97691997376741

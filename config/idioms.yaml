@@ -85,14 +85,15 @@ idioms:
 
   - phrase: "penny-pinching"
     denomination: [penny]
-    group: treatment
+    group: excluded
     source: LIDIOMS
     notes: >
       Excessive frugality or miserliness — saving at the level of
-      individual pennies. Value-laden: the penny marks the scale of
-      the parsimony. LIDIOMS form is "penny-pincher"; gerund form
-      used here as it is far more common in parliamentary speech.
-    include: true
+      individual pennies. The penny here is generic small-money
+      (interchangeable with "cent-pinching"); the idiom's meaning
+      does not depend on the penny's specific purchasing power.
+      EXCLUDED from treatment.
+    include: false
     pole_def_source: "Cambridge Advanced Learner's Dictionary:
       'unwilling to spend money'"
     trivial_pole: "excessive reluctance to spend a negligible amount"
@@ -130,12 +131,15 @@ idioms:
 
   - phrase: "penny packets"
     denomination: [penny]
-    group: treatment
+    group: excluded
     source: researcher
     notes: >
       Small, inadequate, piecemeal amounts. Common in military and
-      budget debates. Value-laden: the penny marks the insufficiency.
-    include: true
+      budget debates. The penny marks smallness/insufficiency in a
+      generic sense — the idiom is about piecemeal scale, not the
+      penny's monetary value. "Shilling packets" would mean the same.
+      EXCLUDED from treatment.
+    include: false
     pole_def_source: "Collins English Dictionary penny-related entries;
       general British parliamentary usage for piecemeal allocation"
     trivial_pole: "a meagre and negligible allocation"
@@ -186,12 +190,15 @@ idioms:
 
   - phrase: "turn an honest penny"
     denomination: [penny]
-    group: treatment
+    group: excluded
     source: researcher
     notes: >
-      To earn money through legitimate work, especially modest amounts.
-      Value-laden: the penny marks the modest scale of the earnings.
-    include: true
+      To earn money through legitimate work. The penny here is a
+      generic stand-in for money/earnings — "turn an honest pound"
+      or "turn an honest dollar" carries the same meaning. The
+      idiom's force comes from "honest", not the denomination's value.
+      EXCLUDED from treatment.
+    include: false
     pole_def_source: "General British idiom; Cambridge Dictionary penny
       entry: 'the smallest amount of money possible'"
     trivial_pole: "to earn a negligible return through honest work"
@@ -262,13 +269,15 @@ idioms:
 
   - phrase: "not the full shilling"
     denomination: [shilling]
-    group: treatment
+    group: excluded
     source: researcher
     notes: >
       Someone not fully competent or intelligent — "not all there."
-      Value-laden: the shilling as a unit of completeness/adequacy.
-      Common in British and Irish parliamentary usage.
-    include: true
+      The shilling here is a unit of completeness, not monetary value.
+      "Not the full pound" or "not the full dollar" carries identical
+      meaning. The idiom's mechanism is part/whole, not the shilling's
+      purchasing power. EXCLUDED from treatment.
+    include: false
     pole_def_source: "Green's Dictionary of Slang: 'not quite the full
       shilling — not very intelligent, slightly eccentric, odd'"
     trivial_pole: "lacking a negligible degree of full competence"

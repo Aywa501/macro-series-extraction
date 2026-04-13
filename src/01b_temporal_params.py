@@ -68,28 +68,32 @@ from sklearn.preprocessing import StandardScaler
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+from config_utils import get_model_cfg, resolve_paths
+
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
 logger = logging.getLogger(__name__)
 
 
-def run(cfg: dict, dry_run: bool) -> None:
-    paths    = cfg["paths"]
-    n_layers = cfg["model"]["n_layers"]
+def run(cfg: dict, model_key: str, dry_run: bool) -> None:
+    mcfg     = get_model_cfg(cfg, model_key)
+    paths    = resolve_paths(cfg, model_key)
+    n_layers = mcfg["n_layers"]
 
-    emb_path   = PROJECT_ROOT / paths["penn_embeddings"]
-    sent_path  = PROJECT_ROOT / paths["penn_sentences"]
-    out_dir    = emb_path.parent
+    emb_path  = PROJECT_ROOT / paths["penn_embeddings"]
+    sent_path = PROJECT_ROOT / paths["penn_sentences"]
 
     dir_layer_path   = PROJECT_ROOT / paths["temporal_directions"]
     dir_out_path     = PROJECT_ROOT / paths["temporal_dir_output"]
     diag_path        = PROJECT_ROOT / paths["temporal_diagnostics"]
     norms_path       = PROJECT_ROOT / paths["temporal_coef_norms"]
-    intercepts_path  = out_dir / "temporal_intercepts.npy"
-    means_path       = out_dir / "temporal_mean_embeddings.npy"
+    intercepts_path  = PROJECT_ROOT / paths["temporal_intercepts"]
+    means_path       = PROJECT_ROOT / paths["temporal_mean_embeddings"]
     clean_layer_path = PROJECT_ROOT / paths["temporal_directions_clean"]
     clean_out_path   = PROJECT_ROOT / paths["temporal_dir_output_clean"]
-    summary_path     = out_dir / "temporal_params_summary.csv"
+    summary_path     = PROJECT_ROOT / paths["temporal_params_summary"]
+
+    out_dir = dir_layer_path.parent   # data/{model}/temporal/
 
     # --- Load embeddings and years ---
     logger.info("Loading Penn embeddings from %s …", emb_path)
@@ -214,6 +218,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Stage 01b: Fit temporal regression on Penn embeddings."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model's embeddings to use (default: bert).")
     parser.add_argument("--dry-run", action="store_true",
                         help="Subsample to 2000 sentences for speed.")
     parser.add_argument("--log-level", default="INFO",
@@ -226,7 +233,7 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    run(cfg, args.dry_run)
+    run(cfg, args.model, args.dry_run)
 
 
 if __name__ == "__main__":

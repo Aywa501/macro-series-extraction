@@ -79,6 +79,8 @@ from sklearn.preprocessing import StandardScaler
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+from config_utils import get_model_cfg, resolve_paths
+
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
 logger = logging.getLogger(__name__)
@@ -229,10 +231,22 @@ def analyse_layer(
             "n": int(mask.sum()),
         })
     calib_df = pd.DataFrame(calib_rows)
+    calib_df["residual"] = calib_df["predicted_year_mean"] - calib_df["actual_year_mean"]
+
     calib_corr = float(np.corrcoef(
         calib_df["actual_year_mean"], calib_df["predicted_year_mean"]
     )[0, 1])
-    result["calibration_r"] = calib_corr
+    calib_rmse = float(np.sqrt(np.mean(calib_df["residual"] ** 2)))
+    result["calibration_r"]    = calib_corr
+    result["calibration_rmse"] = calib_rmse
+
+    # Tail bias: mean residual in the tails vs the central window
+    early_mask  = calib_df["actual_year_mean"] < 1350
+    late_mask   = calib_df["actual_year_mean"] > 1800
+    centre_mask = (~early_mask) & (~late_mask)
+    result["calib_bias_early"]  = float(calib_df.loc[early_mask,  "residual"].mean()) if early_mask.any()  else float("nan")
+    result["calib_bias_late"]   = float(calib_df.loc[late_mask,   "residual"].mean()) if late_mask.any()   else float("nan")
+    result["calib_bias_centre"] = float(calib_df.loc[centre_mask, "residual"].mean()) if centre_mask.any() else float("nan")
 
     # ---- Plots ----
     # Plot A: PCA of centroids (first 2 PCs), coloured by decade
@@ -251,18 +265,111 @@ def analyse_layer(
     fig.savefig(plots_dir / f"centroids_pca_L{layer:02d}.png", dpi=130)
     plt.close(fig)
 
-    # Plot B: Predicted vs actual year
-    fig, ax = plt.subplots(figsize=(6, 5))
-    ax.scatter(calib_df["actual_year_mean"], calib_df["predicted_year_mean"],
-               s=20, alpha=0.7)
-    lo = min(calib_df["actual_year_mean"].min(), calib_df["predicted_year_mean"].min())
-    hi = max(calib_df["actual_year_mean"].max(), calib_df["predicted_year_mean"].max())
-    ax.plot([lo, hi], [lo, hi], "k--", linewidth=0.8, alpha=0.5)
-    ax.set_xlabel("Actual decade mean year")
-    ax.set_ylabel("Predicted year (Ridge)")
-    ax.set_title(f"Temporal probe calibration — Layer {layer}  (r={calib_corr:.3f})")
+    # Plot B: Calibration diagnostic — two panels
+    from scipy.interpolate import UnivariateSpline
+    from scipy.stats import linregress
+
+    fig, (ax_cal, ax_res) = plt.subplots(
+        1, 2, figsize=(12, 5),
+        gridspec_kw={"width_ratios": [1.2, 1]},
+    )
+
+    # --- Panel 1: predicted vs actual, point size ∝ log(n) ---
+    actual  = calib_df["actual_year_mean"].values
+    pred    = calib_df["predicted_year_mean"].values
+    ns      = calib_df["n"].values
+    sizes   = 15 + 120 * (np.log1p(ns) / np.log1p(ns.max()))
+
+    lo = min(actual.min(), pred.min()) - 10
+    hi = max(actual.max(), pred.max()) + 10
+    ax_cal.plot([lo, hi], [lo, hi], "k--", linewidth=0.9, alpha=0.4, label="Perfect")
+
+    # Spline fit (smoothed nonlinear calibration)
+    sort_idx = np.argsort(actual)
+    try:
+        spl = UnivariateSpline(actual[sort_idx], pred[sort_idx],
+                               w=np.sqrt(ns[sort_idx]), s=len(actual) * 50, k=3)
+        x_spl = np.linspace(actual.min(), actual.max(), 300)
+        ax_cal.plot(x_spl, spl(x_spl), "r-", linewidth=1.8, alpha=0.75,
+                    label="Spline fit")
+    except Exception:
+        pass
+
+    sc = ax_cal.scatter(actual, pred, s=sizes, c=actual, cmap="plasma",
+                        alpha=0.85, edgecolors="white", linewidth=0.3, zorder=3)
+    plt.colorbar(sc, ax=ax_cal, label="Actual year", shrink=0.8)
+
+    ax_cal.set_xlabel("Actual decade mean year", fontsize=10)
+    ax_cal.set_ylabel("Predicted year (Ridge)", fontsize=10)
+    ax_cal.set_title(
+        f"Calibration — Layer {layer}   r={calib_corr:.3f}  RMSE={calib_rmse:.0f} yr\n"
+        "Point size ∝ log(n texts in decade)   red = spline fit",
+        fontsize=9,
+    )
+    ax_cal.legend(fontsize=8)
+    ax_cal.set_xlim(lo, hi)
+    ax_cal.set_ylim(lo, hi)
+
+    # Shade the tails where compression is worst
+    ax_cal.axvspan(lo, 1350, alpha=0.06, color="blue")
+    ax_cal.axvspan(1800, hi, alpha=0.06, color="blue")
+    ax_cal.text(1220, hi - 15, "tail", fontsize=7, color="steelblue", alpha=0.8)
+    ax_cal.text(1810, hi - 15, "tail", fontsize=7, color="steelblue", alpha=0.8)
+
+    # --- Panel 2: residuals (predicted − actual) vs actual year ---
+    colours_res = np.where(calib_df["residual"].values > 0, "#E05A2B", "#3B82D1")
+    ax_res.bar(actual, calib_df["residual"].values, width=7,
+               color=colours_res, alpha=0.8, edgecolor="white", linewidth=0.3)
+    ax_res.axhline(0, color="black", linewidth=0.8)
+
+    # Sample count as a secondary grey line (right y-axis)
+    ax2 = ax_res.twinx()
+    ax2.plot(actual, ns, "o-", color="grey", markersize=3, linewidth=0.8,
+             alpha=0.5, label="N texts")
+    ax2.set_ylabel("N texts in decade", fontsize=8, color="grey")
+    ax2.tick_params(axis="y", labelcolor="grey")
+    ax2.set_ylim(0, ns.max() * 3)
+
+    # Annotate tail bias
+    if early_mask.any():
+        eb = result["calib_bias_early"]
+        ax_res.annotate(
+            f"early tail\nbias={eb:+.0f} yr",
+            xy=(actual[early_mask].mean(), eb),
+            xytext=(actual[early_mask].mean() - 30, eb + 15),
+            fontsize=7, color="steelblue",
+            arrowprops=dict(arrowstyle="->", color="steelblue", lw=0.8),
+        )
+    if late_mask.any():
+        lb = result["calib_bias_late"]
+        ax_res.annotate(
+            f"late tail\nbias={lb:+.0f} yr",
+            xy=(actual[late_mask].mean(), lb),
+            xytext=(actual[late_mask].mean() - 60, lb - 20),
+            fontsize=7, color="steelblue",
+            arrowprops=dict(arrowstyle="->", color="steelblue", lw=0.8),
+        )
+
+    ax_res.set_xlabel("Actual decade mean year", fontsize=10)
+    ax_res.set_ylabel("Residual: predicted − actual (years)", fontsize=10)
+    ax_res.set_title(
+        f"Residuals vs year — Layer {layer}\n"
+        f"Orange = over-predicted (early tail pulled up)  "
+        f"Blue = under-predicted (late tail suppressed)",
+        fontsize=9,
+    )
+    ax_res.axvspan(lo, 1350, alpha=0.06, color="blue")
+    ax_res.axvspan(1800, hi, alpha=0.06, color="blue")
+
+    fig.suptitle(
+        "Ridge calibration is S-shaped: good in 1350–1800 window, "
+        "compressed at both tails\n"
+        "(effect is corpus-density driven, not layer-specific)",
+        fontsize=9, fontstyle="italic", y=1.01,
+    )
     fig.tight_layout()
-    fig.savefig(plots_dir / f"calibration_L{layer:02d}.png", dpi=130)
+    fig.savefig(plots_dir / f"calibration_L{layer:02d}.png", dpi=130,
+                bbox_inches="tight")
     plt.close(fig)
 
     # Plot C: Consecutive centroid distances across time
@@ -285,9 +392,10 @@ def analyse_layer(
 # Main
 # ---------------------------------------------------------------------------
 
-def run(cfg: dict, layers_to_analyse: list[int], dry_run: bool) -> None:
-    paths    = cfg["paths"]
-    n_layers = cfg["model"]["n_layers"]
+def run(cfg: dict, model_key: str, layers_to_analyse: list[int], dry_run: bool) -> None:
+    mcfg     = get_model_cfg(cfg, model_key)
+    paths    = resolve_paths(cfg, model_key)
+    n_layers = mcfg["n_layers"]
 
     emb_path  = PROJECT_ROOT / paths["penn_embeddings"]
     sent_path = PROJECT_ROOT / paths["penn_sentences"]
@@ -324,9 +432,19 @@ def run(cfg: dict, layers_to_analyse: list[int], dry_run: bool) -> None:
     print("\n=== Temporal geometry summary ===\n")
     cols = ["layer", "pca_pc1_var", "pca_pc2_var", "pca_cum_var_2pc",
             "angle_pc1_temporal_deg", "between_within_eta2",
-            "centroid_dist_cv", "calibration_r",
+            "centroid_dist_cv", "calibration_r", "calibration_rmse",
             "ridge_cv_r2", "kernel_ridge_cv_r2", "knn_cv_r2"]
     print(summary_df[cols].to_string(index=False))
+
+    # Calibration S-curve summary
+    print("\n--- Calibration tail bias (predicted − actual, years) ---")
+    print(f"  {'Layer':>5}  {'Early (<1350)':>14}  {'Centre':>10}  {'Late (>1800)':>13}  {'RMSE':>6}")
+    for _, row in summary_df.iterrows():
+        print(f"  {int(row['layer']):>5}  "
+              f"{row.get('calib_bias_early', float('nan')):>+14.1f}  "
+              f"{row.get('calib_bias_centre', float('nan')):>+10.1f}  "
+              f"{row.get('calib_bias_late', float('nan')):>+13.1f}  "
+              f"{row.get('calibration_rmse', float('nan')):>6.1f}")
 
     print("\n--- Key questions ---")
     for _, row in summary_df.iterrows():
@@ -344,11 +462,12 @@ def main() -> None:
     with open(CONFIG_PATH) as fh:
         cfg = yaml.safe_load(fh)
 
-    n_layers = cfg["model"]["n_layers"]
-
     parser = argparse.ArgumentParser(
-        description="Stage 01c: Descriptive geometry of time in BERT embedding space."
+        description="Stage 01c: Descriptive geometry of time in embedding space."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model's embeddings to analyse (default: bert).")
     parser.add_argument(
         "--layer", type=int, default=None,
         help="Analyse a single layer (1-indexed). Default: all layers.",
@@ -365,12 +484,13 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+    n_layers = cfg["models"][args.model]["n_layers"]
     if args.layer is not None:
         layers = [args.layer - 1]   # convert to 0-indexed
     else:
         layers = list(range(n_layers))
 
-    run(cfg, layers, args.dry_run)
+    run(cfg, args.model, layers, args.dry_run)
 
 
 if __name__ == "__main__":

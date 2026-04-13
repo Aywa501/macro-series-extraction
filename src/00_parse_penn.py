@@ -244,6 +244,9 @@ def main() -> None:
     parser.add_argument("--output",     type=Path,
                         default=PROJECT_ROOT / paths["penn_sentences"])
     parser.add_argument("--dry-run",    action="store_true")
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Model key (ignored by this script — corpus is shared).")
     parser.add_argument("--log-level",  default="INFO",
                         choices=["DEBUG", "INFO", "WARNING", "ERROR"])
     args = parser.parse_args()

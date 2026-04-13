@@ -4,18 +4,20 @@ Loads the unified intervention results from Stage 04 and produces:
 
   - Per-idiom output-space intervention slopes
   - Layer sensitivity matrix from activation-space interventions
-  - Output intervention plot with:
+  - Output intervention plot (base-normalised) with:
       · robustness check event markers (vertical lines, colour-coded by severity)
       · pre-active-era shading (grey) for each idiom's currency introduction
       · first-attestation tick marks per idiom
+  - Activation intervention plot (base-normalised, best layer)
   - Layer sensitivity heatmap
 
 Outputs
 -------
-data/intervention/intervention_slopes.csv
+data/results/intervention_slopes.csv
 data/results/layer_sensitivity.npy
 data/results/layer_sensitivity_index.csv
 data/plots/output_intervention.png
+data/plots/activation_intervention.png
 data/plots/layer_heatmap.png
 
 Usage
@@ -36,14 +38,23 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import yaml
 from sklearn.linear_model import LinearRegression
 
+try:
+    import openpyxl  # noqa: F401 — only needed for real-value plot
+    _HAS_OPENPYXL = True
+except ImportError:
+    _HAS_OPENPYXL = False
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from config_utils import get_model_cfg, resolve_paths
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
@@ -55,6 +66,18 @@ _SEVERITY_STYLE = {
     "medium": {"color": "#ff7f0e", "linestyle": "-.",  "alpha": 0.45, "linewidth": 0.9},
     "low":    {"color": "#aec7e8", "linestyle": ":",   "alpha": 0.40, "linewidth": 0.8},
 }
+
+
+def _normalise_to_base(values: np.ndarray) -> np.ndarray:
+    """Divide a score series by its first element so it starts at 1.0.
+
+    If the first value is near zero the series is returned unchanged to avoid
+    division explosions.
+    """
+    first = values[0]
+    if abs(first) < 1e-9:
+        return values
+    return values / first
 
 
 def _ols_slope(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
@@ -108,9 +131,158 @@ def _plot_robustness_markers(
         )
 
 
-def run(cfg: dict, dry_run: bool) -> None:
-    paths    = cfg["paths"]
-    n_layers = cfg["model"]["n_layers"]
+def _plot_real_value(
+    xlsx_path: Path,
+    cfg: dict,
+    plots_dir: Path,
+    x_min: float,
+    x_max: float,
+) -> None:
+    """Load CPI and real-earnings series from the BoE millennium dataset and
+    produce a two-panel time-series chart (``real_value.png``).
+
+    Top panel   — Consumer Price Index (2015 = 100, log scale): shows the
+                  general price level.  A rising line means inflation; a penny
+                  buys proportionally less.
+
+    Bottom panel — Real earnings index (1900 = 100, log scale): shows the
+                   purchasing power of an average worker's wage.
+
+    Both panels are annotated with denomination introduction / demonetisation
+    windows (shaded bands) and robustness-check event lines.
+    """
+    if not _HAS_OPENPYXL:
+        logger.warning("openpyxl not installed — skipping real_value.png")
+        return
+    if not xlsx_path.exists():
+        logger.warning("Millennium data not found at %s — skipping real_value.png", xlsx_path)
+        return
+
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+
+    # --- A47: CPI (col 3, 2015=100) ---
+    ws47  = wb["A47. Wages and prices"]
+    rows47 = list(ws47.iter_rows(values_only=True))
+    cpi_years, cpi_vals = [], []
+    for row in rows47[6:]:       # rows 0-5 are header/units
+        yr, cpi = row[0], row[3]
+        if isinstance(yr, int) and isinstance(cpi, float) and cpi > 0:
+            if x_min <= yr <= x_max:
+                cpi_years.append(yr)
+                cpi_vals.append(cpi)
+
+    # --- A48: Real earnings (col 1, 1900=100) ---
+    ws48  = wb["A48. Real Earnings "]
+    rows48 = list(ws48.iter_rows(values_only=True))
+    re_years, re_vals = [], []
+    for row in rows48[5:]:       # rows 0-4 are header/units
+        yr, re = row[0], row[1]
+        if isinstance(yr, int) and isinstance(re, float) and re > 0:
+            if x_min <= yr <= x_max:
+                re_years.append(yr)
+                re_vals.append(re)
+
+    wb.close()
+
+    if not cpi_years:
+        logger.warning("No CPI data in range [%g, %g] — skipping real_value.png", x_min, x_max)
+        return
+
+    cpi_arr = pd.Series(cpi_vals, index=cpi_years)
+    re_arr  = pd.Series(re_vals,  index=re_years)
+
+    checks = cfg.get("robustness_checks", [])
+    denom_windows = cfg.get("denomination_windows", {})
+
+    # Palette for denomination bands
+    denom_colours = {
+        "penny":    "#4878d0",
+        "farthing": "#ee854a",
+        "shilling": "#6acc65",
+        "pound":    "#d65f5f",
+    }
+
+    def _draw_denom_bands(ax: plt.Axes) -> None:
+        """Shade the active lifespan of each denomination."""
+        for denom, info in denom_windows.items():
+            intro = info.get("introduction_year", x_min)
+            demo  = info.get("demonetisation_year", x_max)
+            intro = max(intro, x_min)
+            demo  = min(demo,  x_max)
+            if intro >= demo:
+                continue
+            colour = denom_colours.get(denom, "grey")
+            ax.axvspan(intro, demo, color=colour, alpha=0.07, zorder=0)
+
+    def _draw_event_lines(ax: plt.Axes) -> None:
+        for chk in checks:
+            year = chk["year"]
+            if not (x_min <= year <= x_max):
+                continue
+            style = _SEVERITY_STYLE.get(chk.get("severity", "low"), _SEVERITY_STYLE["low"])
+            ax.axvline(year, zorder=2, **style)
+
+    fig, (ax_top, ax_bot) = plt.subplots(
+        2, 1, figsize=(14, 8), sharex=True,
+        gridspec_kw={"hspace": 0.08},
+    )
+
+    # --- Top: CPI ---
+    _draw_denom_bands(ax_top)
+    ax_top.plot(cpi_arr.index, cpi_arr.values,
+                color="#2c7bb6", linewidth=1.5, label="CPI (2015 = 100)")
+    _draw_event_lines(ax_top)
+    ax_top.set_yscale("log")
+    ax_top.yaxis.set_major_formatter(mticker.ScalarFormatter())
+    ax_top.set_ylabel("Price level (log, 2015 = 100)", fontsize=11)
+    ax_top.set_title("UK price level and real earnings, 1200–1925\n"
+                     "(shaded bands = denomination active era)", fontsize=12)
+    ax_top.grid(axis="y", which="major", linestyle=":", alpha=0.4)
+
+    # Denomination legend
+    denom_patches = [
+        mpatches.Patch(color=c, alpha=0.4, label=d.capitalize())
+        for d, c in denom_colours.items()
+        if d in denom_windows
+    ]
+    ax_top.legend(handles=denom_patches, loc="upper left",
+                  fontsize=7, title="Denomination era", title_fontsize=7,
+                  framealpha=0.6)
+
+    # --- Bottom: Real earnings ---
+    _draw_denom_bands(ax_bot)
+    if re_arr.shape[0] > 0:
+        ax_bot.plot(re_arr.index, re_arr.values,
+                    color="#d7191c", linewidth=1.5, label="Real earnings (1900 = 100)")
+    _draw_event_lines(ax_bot)
+    ax_bot.set_yscale("log")
+    ax_bot.yaxis.set_major_formatter(mticker.ScalarFormatter())
+    ax_bot.set_ylabel("Real earnings (log, 1900 = 100)", fontsize=11)
+    ax_bot.set_xlabel("Year", fontsize=11)
+    ax_bot.grid(axis="y", which="major", linestyle=":", alpha=0.4)
+
+    # Severity legend on bottom panel
+    sev_patches = [
+        mpatches.Patch(color=v["color"], alpha=0.7, label=f"{k.capitalize()} severity event")
+        for k, v in _SEVERITY_STYLE.items()
+    ]
+    ax_bot.legend(handles=sev_patches, loc="upper left",
+                  fontsize=7, title="Robustness checks", title_fontsize=7,
+                  framealpha=0.6)
+
+    ax_top.set_xlim(x_min, x_max)
+    fig.tight_layout()
+    out_path = plots_dir / "real_value.png"
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    logger.info("Saved → %s", out_path)
+
+
+def run(cfg: dict, model_key: str, dry_run: bool) -> None:
+    mcfg     = get_model_cfg(cfg, model_key)
+    paths    = resolve_paths(cfg, model_key)
+    n_layers = mcfg["n_layers"]
     checks   = cfg.get("robustness_checks", [])
 
     results_path = PROJECT_ROOT / paths["intervention_results"]
@@ -192,13 +364,17 @@ def run(cfg: dict, dry_run: bool) -> None:
     mat_idx_df.to_csv(mat_idx_path, index=False)
     logger.info("Saved layer sensitivity matrix → %s", mat_path)
 
-    # --- Print results ---
-    mean_abs   = np.abs(layer_mat).mean(axis=0)
-    best_layer = int(np.argmax(mean_abs)) + 1
+    mean_abs_tmp = np.abs(layer_mat).mean(axis=0)
+    # Exclude the final layer (index n_layers-1): injection at the last encoder
+    # block's output passes through zero remaining transformer blocks, making it
+    # mathematically identical to the output-space intervention.  Pick the best
+    # layer among layers 1 … n_layers-1 (0-indexed: 0 … n_layers-2).
+    best_layer   = int(np.argmax(mean_abs_tmp[:-1])) + 1   # 1-indexed, capped at n_layers-1
 
+    # --- Print results ---
     print("\n=== Intervention Analysis Results ===\n")
     print(f"Layer with strongest temporal–semantic effect: Layer {best_layer}")
-    print(f"  (mean |slope| across idioms = {mean_abs[best_layer-1]:.2e})\n")
+    print(f"  (mean |slope| across idioms = {mean_abs_tmp[best_layer-1]:.2e})\n")
 
     print("Per-idiom output slopes (Δtriviality per year of temporal shift):")
     display_cols = [c for c in [
@@ -213,75 +389,109 @@ def run(cfg: dict, dry_run: bool) -> None:
     print(f"\n  Negative slopes (more modern → more significant): {n_neg}/{n_idioms}")
     print(f"  Positive slopes (more modern → more trivial):     {n_pos}/{n_idioms}")
 
-    # --- Plot 1: Output intervention curves ---
-    x_min = float(out_df["lambda_years"].min())
-    x_max = float(out_df["lambda_years"].max())
+    # Shared plot helpers
+    x_min   = float(out_df["lambda_years"].min())
+    x_max   = float(out_df["lambda_years"].max())
     palette = sns.color_palette("tab20", n_colors=n_idioms)
 
-    fig, ax = plt.subplots(figsize=(14, 7))
-
-    # Shade pre-active era per idiom's earliest denomination introduction
+    global_active_from: int | None = None
     if "active_from" in idiom_meta.columns:
         global_active_from = int(idiom_meta["active_from"].min())
-        if global_active_from > x_min:
-            ax.axvspan(x_min, global_active_from, color="lightgrey", alpha=0.35,
-                       label=f"Pre-coin era (before {global_active_from})")
 
-    # Draw idiom curves
+    def _draw_shared_annotations(ax: plt.Axes, x_min: float, x_max: float) -> None:
+        """Shade pre-coin era, draw first-attestation ticks, horizontal zero line."""
+        if global_active_from is not None and global_active_from > x_min:
+            ax.axvspan(x_min, global_active_from, color="lightgrey", alpha=0.35)
+        if "first_attested" in idiom_meta.columns:
+            for i, idiom in enumerate(idioms):
+                fa = idiom_meta.at[idiom, "first_attested"] if idiom in idiom_meta.index else None
+                if fa and not pd.isna(fa) and x_min <= fa <= x_max:
+                    ax.axvline(fa, color=palette[i], linewidth=0.6,
+                               linestyle="-", alpha=0.3)
+        ax.axhline(1.0, color="black", linewidth=0.8, linestyle="--", alpha=0.4)
+
+    def _add_legends(ax: plt.Axes, checks: list[dict],
+                     x_min: float, x_max: float) -> None:
+        """Add idiom legend (left) and event legend (right)."""
+        idiom_handles = [
+            plt.Line2D([0], [0], color=palette[i], linewidth=1.5, label=idiom)
+            for i, idiom in enumerate(idioms)
+        ]
+        legend_left = ax.legend(
+            handles=idiom_handles,
+            loc="upper left", fontsize=6.5, ncol=1,
+            framealpha=0.55, title="Idioms", title_fontsize=7,
+        )
+        ax.add_artist(legend_left)
+
+        event_patches = [
+            mpatches.Patch(color=v["color"], alpha=0.7, label=f"Robustness: {k} severity")
+            for k, v in _SEVERITY_STYLE.items()
+        ]
+        if global_active_from is not None and global_active_from > x_min:
+            event_patches.append(
+                mpatches.Patch(color="lightgrey", alpha=0.5, label="Pre-coin era")
+            )
+        ax.legend(
+            handles=event_patches,
+            loc="upper right", fontsize=7, framealpha=0.6,
+            title="Events", title_fontsize=7,
+        )
+
+    # --- Plot 1: Output intervention curves (base-normalised) ---
+    fig, ax = plt.subplots(figsize=(14, 7))
+    _draw_shared_annotations(ax, x_min, x_max)
+
     for i, idiom in enumerate(idioms):
         sub = out_df[out_df["idiom"] == idiom].sort_values("lambda_years")
-        ax.plot(sub["lambda_years"], sub["score_paraphrase"],
+        scores_norm = _normalise_to_base(sub["score_paraphrase"].values)
+        ax.plot(sub["lambda_years"], scores_norm,
                 label=idiom, color=palette[i], linewidth=1.4, alpha=0.85)
 
-        # Mark first attestation year with a small tick on the x-axis
-        if "first_attested" in idiom_meta.columns:
-            fa = idiom_meta.at[idiom, "first_attested"] if idiom in idiom_meta.index else None
-            if fa and not pd.isna(fa) and x_min <= fa <= x_max:
-                ax.axvline(fa, color=palette[i], linewidth=0.6,
-                           linestyle="-", alpha=0.3)
-
-    ax.axhline(0, color="black", linewidth=0.8, linestyle="--", alpha=0.4)
-
-    # Robustness check markers
     y_top = ax.get_ylim()[1] * 0.97
     _plot_robustness_markers(ax, checks, x_min, x_max, y_top)
+    _add_legends(ax, checks, x_min, x_max)
 
-    # Legend for severity
-    legend_patches = [
-        mpatches.Patch(color=v["color"], alpha=0.7, label=f"Robustness: {k} severity")
-        for k, v in _SEVERITY_STYLE.items()
-    ]
-    if "active_from" in idiom_meta.columns and global_active_from > x_min:
-        legend_patches.append(
-            mpatches.Patch(color="lightgrey", alpha=0.5, label="Pre-coin era")
-        )
-    ax.legend(
-        handles=legend_patches,
-        loc="upper right", fontsize=7, framealpha=0.6,
-        title="Events", title_fontsize=7,
-    )
-
-    # Idiom legend on the side
-    idiom_handles = [
-        plt.Line2D([0], [0], color=palette[i], linewidth=1.5, label=idiom)
-        for i, idiom in enumerate(idioms)
-    ]
-    ax2_legend = ax.legend(
-        handles=idiom_handles,
-        loc="upper left", fontsize=6.5, ncol=1,
-        framealpha=0.55, title="Idioms", title_fontsize=7,
-    )
-    ax.add_artist(ax2_legend)   # re-add after second legend call
-
-    ax.set_xlabel("λ (year of predicted year shift)", fontsize=12)
-    ax.set_ylabel("score_paraphrase  (trivial − significant)", fontsize=12)
-    ax.set_title("Effect of temporal shift on triviality score (output space)", fontsize=13)
+    ax.set_xlabel("λ (projected year)", fontsize=12)
+    ax.set_ylabel("Relative triviality score  (base = 1 at earliest λ)", fontsize=12)
+    ax.set_title("Effect of temporal shift on triviality score — output space (indexed to 1)", fontsize=13)
     fig.tight_layout()
     fig.savefig(plots_dir / "output_intervention.png", dpi=150)
     plt.close(fig)
     logger.info("Saved → %s", plots_dir / "output_intervention.png")
 
-    # --- Plot 2: Layer sensitivity heatmap ---
+    # --- Plot 2: Activation intervention curves (base-normalised, best layer) ---
+    act_best = act_df[act_df["intervention_layer"] == best_layer].copy()
+    x_min_act = float(act_best["lambda_years"].min()) if len(act_best) else x_min
+    x_max_act = float(act_best["lambda_years"].max()) if len(act_best) else x_max
+
+    fig, ax = plt.subplots(figsize=(14, 7))
+    _draw_shared_annotations(ax, x_min_act, x_max_act)
+
+    for i, idiom in enumerate(idioms):
+        sub = act_best[act_best["idiom"] == idiom].sort_values("lambda_years")
+        if len(sub) < 2:
+            continue
+        scores_norm = _normalise_to_base(sub["score_paraphrase"].values)
+        ax.plot(sub["lambda_years"], scores_norm,
+                label=idiom, color=palette[i], linewidth=1.4, alpha=0.85)
+
+    y_top = ax.get_ylim()[1] * 0.97
+    _plot_robustness_markers(ax, checks, x_min_act, x_max_act, y_top)
+    _add_legends(ax, checks, x_min_act, x_max_act)
+
+    ax.set_xlabel("λ (projected year)", fontsize=12)
+    ax.set_ylabel("Relative triviality score  (base = 1 at earliest λ)", fontsize=12)
+    ax.set_title(
+        f"Effect of temporal shift on triviality score — activation space, Layer {best_layer} (indexed to 1)",
+        fontsize=13,
+    )
+    fig.tight_layout()
+    fig.savefig(plots_dir / "activation_intervention.png", dpi=150)
+    plt.close(fig)
+    logger.info("Saved → %s", plots_dir / "activation_intervention.png")
+
+    # --- Plot 3: Layer sensitivity heatmap ---
     fig, ax = plt.subplots(figsize=(11, max(4, n_idioms * 0.45)))
     sns.heatmap(
         layer_mat,
@@ -303,6 +513,10 @@ def run(cfg: dict, dry_run: bool) -> None:
     plt.close(fig)
     logger.info("Saved → %s", plots_dir / "layer_heatmap.png")
 
+    # --- Plot 4: Real value time series from BoE millennium data ---
+    millennium_path = PROJECT_ROOT / paths["millennium_data"]
+    _plot_real_value(millennium_path, cfg, plots_dir, x_min, x_max)
+
     print(f"\nPlots → {plots_dir}/")
 
     # --- Print robustness check reference table ---
@@ -321,6 +535,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Stage 05: Analyse intervention results."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model's results to analyse (default: bert).")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--log-level", default="INFO",
                         choices=["DEBUG", "INFO", "WARNING", "ERROR"])
@@ -332,7 +549,7 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     warnings.filterwarnings("ignore", category=FutureWarning)
-    run(cfg, args.dry_run)
+    run(cfg, args.model, args.dry_run)
 
 
 if __name__ == "__main__":

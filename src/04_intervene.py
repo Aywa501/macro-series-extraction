@@ -55,6 +55,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from hooks import batch_inject_at_layer, embed_sentences
+from config_utils import get_model_cfg, resolve_paths
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
@@ -127,14 +128,15 @@ def _idiom_metadata(
     return denom_str, active_from, first_attested
 
 
-def run(cfg: dict, dry_run: bool) -> None:
+def run(cfg: dict, model_key: str, dry_run: bool) -> None:
     import torch
     from transformers import BertModel, BertTokenizerFast
 
-    paths      = cfg["paths"]
-    model_name = cfg["model"]["name"]
-    batch_size = cfg["model"]["batch_size"]
-    n_layers   = cfg["model"]["n_layers"]
+    mcfg       = get_model_cfg(cfg, model_key)
+    paths      = resolve_paths(cfg, model_key)
+    model_name = mcfg["name"]
+    batch_size = mcfg["batch_size"]
+    n_layers   = mcfg["n_layers"]
 
     idioms_path    = PROJECT_ROOT / paths["idioms_config"]
     sent_path      = PROJECT_ROOT / paths["penn_sentences"]
@@ -247,6 +249,12 @@ def run(cfg: dict, dry_run: bool) -> None:
     # == ACTIVATION-SPACE intervention ==
     # Hook injects λ × temporal_direction_k into CLS at layer k output;
     # the perturbation propagates through layers k+1 … 12 normally.
+    #
+    # NOTE: injection at layer_idx = n_layers-1 (the final encoder block) is
+    # mathematically identical to the output-space intervention — zero remaining
+    # blocks means the perturbation goes straight to last_hidden_state unchanged.
+    # The layer 12 rows are included for completeness but should not be used as
+    # an independent "activation" result in analysis.
     logger.info("Running activation-space interventions …")
     act_t0 = time.time()
 
@@ -311,6 +319,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Stage 04: Temporal intervention on idiom phrases."
     )
+    parser.add_argument("--model", default="bert",
+                        choices=list(cfg.get("models", {"bert": None}).keys()),
+                        help="Which model to run interventions with (default: bert).")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--log-level", default="INFO",
                         choices=["DEBUG", "INFO", "WARNING", "ERROR"])
@@ -322,7 +333,7 @@ def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    run(cfg, args.dry_run)
+    run(cfg, args.model, args.dry_run)
 
 
 if __name__ == "__main__":
