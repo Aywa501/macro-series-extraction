@@ -1,2 +1,2 @@
-model,layer,pearson_r_value_vs_logpence,pearson_p_value,spearman_rho_time_vs_year,spearman_p_time,cosine_value_time,angle_value_time_deg
-bert,4,0.8204563985169451,0.003638184128010303,0.8821428571428571,1.3558210624788728e-05,-0.1338348388671875,82.30875032909833
+model,layer,spearman_rho_value_vs_pence,spearman_p_value,r2_linear_vs_logpence,r2_quadratic_vs_logpence,spearman_rho_time_vs_year,spearman_p_time,cosine_value_time,angle_value_time_deg
+bert,4,1.0,0.0,1.0,1.0,0.8729064039408866,6.627344834912999e-10,-0.11480625313399401,83.407549843646

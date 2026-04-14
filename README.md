@@ -1,169 +1,113 @@
-# Idiom Index: Monetary Denomination Triviality in Hansard
+# Idiom Index: Monetary Value Probing in BERT Representations
 
 ## Overview
 
-This project builds a computational linguistics pipeline to study how British monetary idioms — phrases like *"not worth a farthing"*, *"a pretty penny"*, or *"penny wise pound foolish"* — changed in semantic weight and connotation across the 19th and 20th centuries. Parliamentary debate transcripts from Hansard provide a dense, datable corpus of English prose; idioms embedded in that prose serve as indirect signals of how contemporaries perceived the real value of denominations. The project extracts, disambiguates, embeds, scores, and regresses these signals against historical price-index data.
+This project investigates whether pre-trained language models — specifically `bert-base-uncased` and `emanjavacas/MacBERTh` — implicitly encode historical monetary value in their internal representation space, and whether those representations track real economic history.
 
-The pipeline is fully reproducible and staged (stages 01–06). Each stage writes intermediate artefacts to `data/`, enabling resumption after interruption without recomputing prior work. The key output is a yearly triviality index *S_t* — a scalar measuring how "dismissive" or "insignificant" the connotations of monetary idioms were in a given year — which is then regressed against the log real purchasing power of each denomination. If idioms track monetary salience, we would expect a negative relationship: as a coin's real value fell, references to it should cluster toward the "trivial" end of the semantic axis.
+The approach is **corpus-free**: rather than extracting idioms from text, the analysis constructs short synthetic probe sentences (e.g. *"the coin was worth a farthing"*, *"in 1650, a shilling was used for everyday purchases"*) and passes them through frozen model weights. CLS embeddings at each transformer layer are projected onto hand-built semantic axes and correlated against real historical series from the Bank of England Millennium dataset.
+
+The central question: does the geometry of a language model's embedding space reflect centuries of monetary history it was never explicitly trained to encode?
 
 ## Setup
 
 ### Prerequisites
 
 - Python 3.11+
-- AWS credentials with Bedrock access (for stage 02 only)
-- Approximately 8 GB of RAM; MPS/CUDA recommended for stage 03
+- Approximately 4–8 GB of RAM; MPS/CUDA recommended
 
 ### Installation
 
 ```bash
-cd project/
 pip install -r requirements.txt
 ```
 
-### NLTK data
+### Input data
 
-Stage 01 requires the `punkt` sentence tokenizer:
-
-```bash
-python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
-```
-
-### AWS credentials
-
-Stage 02 calls AWS Bedrock. Configure credentials via any standard boto3 method:
-
-```bash
-# Option A: environment variables
-export AWS_ACCESS_KEY_ID=...
-export AWS_SECRET_ACCESS_KEY=...
-export AWS_REGION=us-east-1          # optional; defaults to us-east-1
-
-# Option B: AWS CLI profile
-aws configure
-```
-
-No credentials are hardcoded in the codebase.
-
-## Input Data
-
-Populate the following before running:
+One external file is required:
 
 | Path | Contents |
 |---|---|
-| `data/raw/hansard/` | Hansard XML files. Filenames should match `YYYY_*.xml` for automatic year extraction, or carry a `date` attribute in the XML. |
-| `data/raw/price_index.csv` | Two columns: `year` (int) and `price_index` (float). Any normalisation works; the pipeline normalises to 1800 = 100. |
+| `a-millennium-of-macroeconomic-data-for-the-uk.xlsx` | Bank of England Millennium of Macroeconomic Data (place in the project root or one level above) |
 
-## Running the Pipeline
+No corpus, no API keys, no additional downloads beyond the HuggingFace model weights (fetched automatically on first run).
 
-Run stages in order from the project root:
+## Running the Analysis
 
-```bash
-# Stage 01: Extract candidates from Hansard XML
-python src/01_extract.py
-
-# Stage 02: Disambiguate via AWS Bedrock (LLM classification)
-python src/02_disambiguate.py
-
-# Stage 03: Embed idiomatic observations with transformer models
-python src/03_embed.py
-
-# Stage 04: Score embeddings (axis projection, cosine similarity, centroid drift)
-python src/04_score.py
-
-# Stage 05: Build triviality index S_t; merge with price data; plot
-python src/05_index.py
-
-# Stage 06: Panel and time-series regressions
-python src/06_regression.py
-```
-
-### Common options
-
-All scripts accept:
-
-| Flag | Meaning |
-|---|---|
-| `--data-dir PATH` | Override the data root (default: `<project_root>/data`). |
-| `--config PATH` | Override the idioms config (stage 01 only). |
-| `--force` | Ignore checkpoints / existing outputs and recompute. |
-| `--log-level` | `DEBUG`, `INFO` (default), `WARNING`, `ERROR`. |
-
-Stage 03 additionally accepts `--model macberth` or `--model bge` to embed with a single model.
-
-## Resuming Interrupted Runs
-
-- **Stage 01** tracks processed XML files in `data/interim/.extract_progress.json`. Restarting picks up where it left off. Use `--force` to reprocess all files.
-- **Stage 02** checks whether each candidate `id` already appears in `data/interim/observations.parquet`. Restarting is safe. Use `--force` to reclassify everything.
-- **Stages 03–06** check for existing output files and skip if present. Use `--force` to recompute.
-
-## Running Tests
+Scripts live in `src/analysis_1/` and must be run in order. All output goes to `data/{model}/value_probe/`.
 
 ```bash
-pytest tests/
+# Step 1: Build the value axis and time axis from layer 4 CLS embeddings
+python src/analysis_1/01_build_axes.py --model bert
+
+# Step 2: Test implicit historical sequences against the year-probe direction across all 12 layers
+python src/analysis_1/02_cross_temporal.py --model bert
+
+# Step 3: Embed coins with explicit year context; correlate with BoE purchasing power data
+python src/analysis_1/03_coin_value_probe.py --model bert
+
+# Step 4: Test 5 broader BoE macroeconomic series against custom semantic axes
+python src/analysis_1/04_broader_series.py --model bert
 ```
 
-Tests mock the Bedrock API — no AWS credentials required. 20 curated test cases cover clear idiomatic, clear literal, and ambiguous contexts.
+Swap `--model bert` for `--model macberth` to run with the historical English model. Run `sweep_best_layer.py` first if using MacBERTh to identify the optimal layer:
 
-## Replication Notes
+```bash
+python src/analysis_1/sweep_best_layer.py --model macberth
+# Then pass the recommended --layer flag to scripts 01–04
+```
 
-### Model identifiers
+### Script summary
 
-| Role | Model ID |
-|---|---|
-| Disambiguation LLM | `meta.llama3-1-8b-instruct-v1:0` (AWS Bedrock) |
-| Historical embedding | `emanjavacas/MacBERTh` (HuggingFace) |
-| Modern English embedding | `BAAI/bge-large-en-v1.5` (HuggingFace) |
+| Script | What it does | Outputs |
+|---|---|---|
+| `_common.py` | Shared constants (denominations, templates, year ranges, sequence definitions) | — |
+| `01_build_axes.py` | Builds value axis (sovereign − farthing) and time axis (late − early year probes) at a given layer; reports Pearson r and Spearman ρ | `value_direction_L{n}.npy`, `time_direction_L{n}.npy`, `axes_summary.csv`, `plots/axes_quality.png` |
+| `02_cross_temporal.py` | Projects four implicit monotonic sequences (dynasties, weapons, ships, fuels) onto the year-probe direction across all 12 layers | `cross_temporal_results.csv`, `plots/cross_temporal.png` |
+| `03_coin_value_probe.py` | Embeds coins in year-contextualised sentences, projects onto the value axis, correlates with BoE CPI and real earnings | `coin_value_results.csv`, `correlation_summary.csv`, `plots/coin_value_vs_real.png` |
+| `04_broader_series.py` | Builds bespoke semantic axes for wheat prices, coin supply, population, wages, and trade volume; correlates projections with BoE series | `broader_series_results.csv`, `broader_series_correlations.csv`, `plots/broader_series.png` |
+| `sweep_best_layer.py` | Sweeps all 12 layers for value-axis Pearson r and time-axis Spearman ρ; saves directions for the best layer | `value_direction_L{n}.npy`, `time_direction_L{n}.npy` |
 
-### Prompt version
+### Script dependencies
 
-The disambiguation prompt is defined in `src/02_disambiguate.py` as `USER_TEMPLATE` (constant). The system prompt is `SYSTEM_PROMPT`. Together these constitute prompt version 1. Any change to either string constitutes a new prompt version and invalidates prior `bedrock_raw.jsonl` entries for comparison purposes.
+`02_cross_temporal.py` and `03_coin_value_probe.py` require the `.npy` direction files produced by `01_build_axes.py` (or `sweep_best_layer.py`).
 
-### Verifying results without AWS
+## Models
 
-All raw Bedrock responses are appended line-by-line to `data/logs/bedrock_raw.jsonl` immediately after each API call. To replay classification without calling AWS:
+| Key | Model ID | Notes |
+|---|---|---|
+| `bert` | `bert-base-uncased` | Baseline; modern English pre-training |
+| `macberth` | `emanjavacas/MacBERTh` | Pre-trained on historical English (1450–1950) |
 
-1. Confirm `data/logs/bedrock_raw.jsonl` is present.
-2. Parse each line (each is a JSON object with keys `id`, `raw_response`, `timestamp`, `model_id`).
-3. Pass `raw_response` through `parse_llm_response()` from `src/02_disambiguate.py`.
-4. Cross-reference against `data/interim/observations.parquet` by `id`.
-
-This allows auditing, error analysis, and prompt-version comparisons without re-incurring API costs.
+Both are loaded from HuggingFace with `output_hidden_states=True`. No fine-tuning is performed.
 
 ## Project Structure
 
 ```
-project/
+idiom-index/
 ├── config/
-│   └── idioms.yaml          # Idiom definitions and metadata
+│   └── config.yaml
 ├── data/
-│   ├── raw/
-│   │   ├── hansard/         # Input: Hansard XML files (user-populated)
-│   │   └── price_index.csv  # Input: historical price index (user-populated)
-│   ├── interim/             # Intermediate: candidates + observations parquet
-│   ├── processed/
-│   │   └── embeddings/      # .npy embedding arrays + index.parquet
-│   └── logs/
-│       └── bedrock_raw.jsonl
-├── src/
-│   ├── 01_extract.py
-│   ├── 02_disambiguate.py
-│   ├── 03_embed.py
-│   ├── 04_score.py
-│   ├── 05_index.py
-│   ├── 06_regression.py
-│   └── utils/
-│       ├── checkpoint.py
-│       ├── hansard_parser.py
-│       └── bedrock_client.py
-├── notebooks/
-│   ├── 00_eda.ipynb
-│   └── 01_results.ipynb
-├── tests/
-│   └── test_disambiguation.py
+│   └── {model}/
+│       └── value_probe/
+│           ├── value_direction_L{n}.npy
+│           ├── time_direction_L{n}.npy
+│           ├── axes_summary.csv
+│           ├── cross_temporal_results.csv
+│           ├── coin_value_results.csv
+│           ├── correlation_summary.csv
+│           ├── broader_series_results.csv
+│           ├── broader_series_correlations.csv
+│           └── plots/
 ├── outputs/
-│   ├── figures/
-│   └── tables/
+├── src/
+│   ├── analysis_1/
+│   │   ├── _common.py
+│   │   ├── 01_build_axes.py
+│   │   ├── 02_cross_temporal.py
+│   │   ├── 03_coin_value_probe.py
+│   │   ├── 04_broader_series.py
+│   │   └── sweep_best_layer.py
+│   └── exploratory/
 ├── requirements.txt
 └── README.md
 ```
